@@ -1,0 +1,29 @@
+alias(
+    name = "XCBBuildServiceProxy",
+    actual = "//Sources/XCBBuildServiceProxy",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "XCBProtocol",
+    actual = "//Sources/XCBProtocol",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "XCBProtocol_11_3",
+    actual = "//Sources/XCBProtocol_11_3",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "XCBProtocol_11_4",
+    actual = "//Sources/XCBProtocol_11_4",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "XCBProtocol_12_0",
+    actual = "//Sources/XCBProtocol_12_0",
+    visibility = ["//visibility:public"],
+)
