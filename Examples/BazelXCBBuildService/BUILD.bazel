@@ -1,0 +1,47 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library", "swift_proto_library")
+load("@build_bazel_rules_apple//apple:macos.bzl", "macos_command_line_application")
+
+swift_proto_library(
+    name = "build_event_stream_proto",
+    deps = ["@build_bazel_bazel//src/main/java/com/google/devtools/build/lib/buildeventstream/proto:build_event_stream_proto"],
+)
+
+swift_library(
+    name = "BazelXCBBuildService.library",
+    module_name = "BazelXCBBuildService",
+    srcs = glob(["Sources/**/*.swift"]),
+    deps = [
+        ":build_event_stream_proto",
+        "@com_github_apple_swift_log//:Logging",
+        "@com_github_apple_swift_nio//:NIO",
+        "@com_github_target_xcbbuildserviceproxy//:XCBBuildServiceProxy",
+        "@com_github_target_xcbbuildserviceproxy//:XCBProtocol",
+        "@com_github_target_xcbbuildserviceproxy//:XCBProtocol_12_0",
+    ],
+)
+
+macos_command_line_application(
+    name = "BazelXCBBuildService",
+    minimum_os_version = "10.15",
+    deps = [":BazelXCBBuildService.library"],
+)
+
+sh_test(
+    name = "BazelXCBBuildServiceIntegrationTests",
+    size = "small",
+    srcs = ["integration_tests.sh"],
+    data = [
+        ":BazelXCBBuildService",
+    ],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)
+
+sh_test(
+    name = "write_shim_tests",
+    size = "small",
+    srcs = ["write_shim_tests.sh"],
+    data = [
+        "write_shim.sh",
+    ],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)
