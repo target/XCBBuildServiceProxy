@@ -1,21 +1,11 @@
 """Definitions for handling Bazel repositories used by the Swift rules."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-def _maybe(repo_rule, name, **kwargs):
-    """Executes the given repository rule if it hasn't been executed already.
-
-    Args:
-      repo_rule: The repository rule to be executed (e.g., `http_archive`.)
-      name: The name of the repository to be defined by the rule.
-      **kwargs: Additional arguments passed directly to the repository rule.
-    """
-    if not native.existing_rule(name):
-        repo_rule(name = name, **kwargs)
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def xcbbuildserviceproxy_dependencies():
     """Fetches repositories that are dependencies of `XCBBuildServiceProxy`."""
-    _maybe(
+    maybe(
         http_archive,
         build_file = "@com_github_target_xcbbuildserviceproxy//:external/com_github_apple_swift_log.BUILD",
         name = "com_github_apple_swift_log",
@@ -26,7 +16,7 @@ def xcbbuildserviceproxy_dependencies():
         ],
     )
 
-    _maybe(
+    maybe(
         http_archive,
         build_file = "@com_github_target_xcbbuildserviceproxy//:external/com_github_apple_swift_nio.BUILD",
         name = "com_github_apple_swift_nio",
