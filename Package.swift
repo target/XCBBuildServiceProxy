@@ -1,10 +1,10 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
     name: "BazelXCBBuildServiceProxy",
-    platforms: [.macOS(.v10_14)],
+    platforms: [.macOS(.v10_15)],
     products: [
         .library(name: "XCBProtocol", targets: ["XCBProtocol"]),
         .library(name: "XCBProtocol_11_3", targets: ["XCBProtocol_11_3"]),
@@ -18,48 +18,59 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "MessagePack"
+            name: "MessagePack",
+            exclude: [
+                "BUILD.bazel",
+                "LICENSE",
+                "README.md"
+            ]
         ),
         .testTarget(
             name: "MessagePackTests",
-            dependencies: ["MessagePack"]
+            dependencies: ["MessagePack"],
+            exclude: ["BUILD.bazel"]
         ),
         .target(
             name: "XCBProtocol",
             dependencies: [
-                "Logging",
                 "MessagePack",
-                "NIO",
-            ]
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "NIO", package: "swift-nio"),
+            ],
+            exclude: ["BUILD.bazel"]
         ),
         .target(
             name: "XCBProtocol_11_3",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ]
+            ],
+            exclude: ["BUILD.bazel"]
         ),
         .target(
             name: "XCBProtocol_11_4",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ]
+            ],
+            exclude: ["BUILD.bazel"]
         ),
         .target(
             name: "XCBProtocol_12_0",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ]
+            ],
+            exclude: ["BUILD.bazel"]
         ),
         .target(
             name: "XCBBuildServiceProxy",
             dependencies: [
-                "Logging",
-                "NIO",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "NIO", package: "swift-nio"),
                 "XCBProtocol",
-            ]
+            ],
+            exclude: ["BUILD.bazel"]
         ),
     ]
 )
