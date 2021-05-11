@@ -18,10 +18,10 @@ public struct BuildRequest {
     public let buildOnlyTheseTargets: MessagePackValue
     public let buildDescriptionID: MessagePackValue
     public let enableIndexBuildArena: Bool
-    public let unknown1: MessagePackValue? // comes back as `nil`, so it's unclear what this is or what type it is
+    public let unknown: MessagePackValue? // comes back as `nil`, so it's unclear what this is or what type it is
     public let useLegacyBuildLocations: Bool
     public let shouldCollectMetrics: Bool
-    public let unknown2: String? // an encrypted string, possibly `jsonRepresentation`
+    public let jsonRepresentation: String?
 }
 
 // MARK: - Decoding
@@ -29,9 +29,9 @@ public struct BuildRequest {
 extension BuildRequest: DecodableRPCPayload {
     public init(args: [MessagePackValue], indexPath: IndexPath) throws {
         guard args.count == 19 else { throw RPCPayloadDecodingError.invalidCount(args.count, indexPath: indexPath) }
-        
+
         self.parameters = try args.parseObject(indexPath: indexPath + IndexPath(index: 0))
-        
+
         let targetsIndexPath = indexPath + IndexPath(index: 1)
         let targetGUIDsArray = try args.parseArray(indexPath: targetsIndexPath)
         self.configuredTargets = try targetGUIDsArray.enumerated().map { index, _ in
@@ -51,9 +51,15 @@ extension BuildRequest: DecodableRPCPayload {
         self.buildOnlyTheseTargets = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 12))
         self.buildDescriptionID = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 13))
         self.enableIndexBuildArena = try args.parseBool(indexPath: indexPath + IndexPath(index: 14))
-        self.unknown1 = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 15))
+        self.unknown = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 15))
         self.useLegacyBuildLocations = try args.parseBool(indexPath: indexPath + IndexPath(index: 16))
         self.shouldCollectMetrics = try args.parseBool(indexPath: indexPath + IndexPath(index: 17))
-        self.unknown2 = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 18))
+
+        if let jsonRepresentationBase64String = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 18)),
+           let jsonRepresentationBase64Data = Data(base64Encoded: jsonRepresentationBase64String) {
+            self.jsonRepresentation = String(data: jsonRepresentationBase64Data, encoding: .utf8)
+        } else {
+            self.jsonRepresentation = nil
+        }
     }
 }
