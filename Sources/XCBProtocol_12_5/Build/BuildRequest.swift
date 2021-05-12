@@ -37,7 +37,7 @@ extension BuildRequest: DecodableRPCPayload {
         self.configuredTargets = try targetGUIDsArray.enumerated().map { index, _ in
             try targetGUIDsArray.parseObject(indexPath: targetsIndexPath + IndexPath(index: index))
         }
-        
+
         self.continueBuildingAfterErrors = try args.parseBool(indexPath: indexPath + IndexPath(index: 2))
         self.hideShellScriptEnvironment = try args.parseBool(indexPath: indexPath + IndexPath(index: 3))
         self.useParallelTargets = try args.parseBool(indexPath: indexPath + IndexPath(index: 4))
@@ -55,9 +55,12 @@ extension BuildRequest: DecodableRPCPayload {
         self.useLegacyBuildLocations = try args.parseBool(indexPath: indexPath + IndexPath(index: 16))
         self.shouldCollectMetrics = try args.parseBool(indexPath: indexPath + IndexPath(index: 17))
 
-        if let jsonRepresentationBase64String = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 18)),
-           let jsonRepresentationBase64Data = Data(base64Encoded: jsonRepresentationBase64String) {
-            self.jsonRepresentation = String(data: jsonRepresentationBase64Data, encoding: .utf8)
+        if let jsonRepresentationBase64String = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 18)) {
+            guard let base64Data = Data(base64Encoded: jsonRepresentationBase64String),
+                  let decodedString = String(data: base64Data, encoding: .utf8) else {
+                throw MessagePackUnpackError.invalidData
+            }
+            self.jsonRepresentation = decodedString
         } else {
             self.jsonRepresentation = nil
         }
