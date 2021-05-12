@@ -1,10 +1,10 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.1
 
 import PackageDescription
 
 let package = Package(
     name: "BazelXCBBuildServiceProxy",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v10_14)],
     products: [
         .library(name: "XCBProtocol", targets: ["XCBProtocol"]),
         .library(name: "XCBProtocol_11_3", targets: ["XCBProtocol_11_3"]),
@@ -19,50 +19,40 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "MessagePack",
-            exclude: [
-                "BUILD.bazel",
-                "LICENSE",
-                "README.md"
-            ]
+            name: "MessagePack"
         ),
         .testTarget(
             name: "MessagePackTests",
-            dependencies: ["MessagePack"],
-            exclude: ["BUILD.bazel"]
+            dependencies: ["MessagePack"]
         ),
         .target(
             name: "XCBProtocol",
             dependencies: [
+                "Logging",
                 "MessagePack",
-                .product(name: "Logging", package: "swift-log"),
-                .product(name: "NIO", package: "swift-nio"),
-            ],
-            exclude: ["BUILD.bazel"]
+                "NIO",
+            ]
         ),
         .target(
             name: "XCBProtocol_11_3",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ],
-            exclude: ["BUILD.bazel"]
+            ]
         ),
         .target(
             name: "XCBProtocol_11_4",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ],
-            exclude: ["BUILD.bazel"]
+            ]
         ),
         .target(
             name: "XCBProtocol_12_0",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ],
-            exclude: ["BUILD.bazel"]
+            ]
         ),
         .target(
             name: "XCBProtocol_12_5",
@@ -75,11 +65,10 @@ let package = Package(
         .target(
             name: "XCBBuildServiceProxy",
             dependencies: [
-                .product(name: "Logging", package: "swift-log"),
-                .product(name: "NIO", package: "swift-nio"),
+                "Logging",
+                "NIO",
                 "XCBProtocol",
-            ],
-            exclude: ["BUILD.bazel"]
+            ]
         ),
     ]
 )
