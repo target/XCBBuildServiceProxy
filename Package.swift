@@ -59,8 +59,7 @@ let package = Package(
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
-            ],
-            exclude: ["BUILD.bazel"]
+            ]
         ),
         .target(
             name: "XCBBuildServiceProxy",
