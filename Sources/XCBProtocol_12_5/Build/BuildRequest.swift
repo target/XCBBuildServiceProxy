@@ -18,7 +18,7 @@ public struct BuildRequest {
     public let buildOnlyTheseTargets: MessagePackValue
     public let buildDescriptionID: MessagePackValue
     public let enableIndexBuildArena: Bool
-    public let unknown: MessagePackValue? // comes back as `nil`, so it's unclear what this is or what type it is
+    public let unknown: MessagePackValue // comes back as `.nil`, so it's unclear what this is or what type it is
     public let useLegacyBuildLocations: Bool
     public let shouldCollectMetrics: Bool
     public let jsonRepresentation: String?
