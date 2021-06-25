@@ -14,8 +14,9 @@ let package = Package(
         .library(name: "XCBBuildServiceProxy", targets: ["XCBBuildServiceProxy"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.17.0"),
+        // Make sure to update the versions used in the `repositories.bzl` file if you change them here
+        .package(url: "https://github.com/apple/swift-log", .exact("1.4.2")),
+        .package(url: "https://github.com/apple/swift-nio", .exact("2.30.2")),
     ],
     targets: [
         .target(
