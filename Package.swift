@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         // Make sure to update the versions used in the `repositories.bzl` file if you change them here
         .package(url: "https://github.com/apple/swift-log", .exact("1.4.2")),
-        .package(url: "https://github.com/apple/swift-nio", .exact("2.30.2")),
+        .package(url: "https://github.com/apple/swift-nio", .exact("2.30.0")),
     ],
     targets: [
         .target(
