@@ -20,7 +20,12 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "MessagePack"
+            name: "MessagePack",
+            exclude: [
+                "LICENSE",
+                "BUILD.bazel",
+                "README.md"
+            ]
         ),
         .testTarget(
             name: "MessagePackTests",
@@ -32,6 +37,9 @@ let package = Package(
                 "Logging",
                 "MessagePack",
                 "NIO",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
         .target(
@@ -39,6 +47,9 @@ let package = Package(
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
         .target(
@@ -46,6 +57,9 @@ let package = Package(
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
         .target(
@@ -53,6 +67,9 @@ let package = Package(
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
         .target(
@@ -60,6 +77,9 @@ let package = Package(
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
         .target(
@@ -68,6 +88,9 @@ let package = Package(
                 "Logging",
                 "NIO",
                 "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
             ]
         ),
     ]
