@@ -22,8 +22,8 @@ let package = Package(
         .target(
             name: "MessagePack",
             exclude: [
-                "LICENSE",
                 "BUILD.bazel",
+                "LICENSE",
                 "README.md"
             ]
         ),
