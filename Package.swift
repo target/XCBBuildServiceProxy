@@ -86,6 +86,7 @@ let package = Package(
         .target(
             name: "XCBProtocol_13_0",
             dependencies: [
+                "Logging",
                 "MessagePack",
                 "XCBProtocol",
             ],
