@@ -6,7 +6,7 @@ public struct BuildCommand: Decodable {
     
     public let command: Command
     let enableIndexBuildArena: Bool
-    let targets: String
+    let targets: String?
     
     public enum Command: String, Decodable {
         case build
