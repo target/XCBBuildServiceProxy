@@ -8,7 +8,7 @@ public struct BuildOperationTaskStarted {
         public let signature: Data // Used in `BuildOperationTaskUpToDate`. Seems to be consistent.
         public let ruleInfo: String // e.g. "CompileSwift normal x86_64 /Users/USER/Desktop/BazelXCBuildServer/Sources/XCBProtocol/Response.swift", "PhaseScriptExecution SwiftLint /Users/USER/Library/Developer/Xcode/DerivedData/PROJECT-HASH/Build/Intermediates.noindex/PROJECT.build/Debug-iphonesimulator/SCRIPT.build/Script-9A635388D017DF17C1E0081A.sh"
         public let executionDescription: String // e.g. "Compile /Users/USER/Desktop/BazelXCBuildServer/Sources/XCBProtocol/Response.swift", "Run custom shell script 'SwiftLint'"
-        public let commandLineDisplayString: String // e.g. "    cd /Users/USER/Desktop/BazelXCBuildServer\n/Applications/Xcode-11.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift -frontend -c ..."
+        public let commandLineDisplayString: String? // e.g. "    cd /Users/USER/Desktop/BazelXCBuildServer\n/Applications/Xcode-11.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift -frontend -c ..."
         public let interestingPath: String? // e.g. "/Users/USER/Desktop/BazelXCBuildServer/Sources/XCBProtocol/Response.swift"
         public let serializedDiagnosticsPaths: [String]
 
@@ -17,7 +17,7 @@ public struct BuildOperationTaskStarted {
             signature: Data,
             ruleInfo: String,
             executionDescription: String,
-            commandLineDisplayString: String,
+            commandLineDisplayString: String?,
             interestingPath: String?,
             serializedDiagnosticsPaths: [String]
         ) {
@@ -76,7 +76,7 @@ extension BuildOperationTaskStarted.TaskDetails: DecodableRPCPayload {
         self.signature = try args.parseBinary(indexPath: indexPath + IndexPath(index: 1))
         self.ruleInfo = try args.parseString(indexPath: indexPath + IndexPath(index: 2))
         self.executionDescription = try args.parseString(indexPath: indexPath + IndexPath(index: 3))
-        self.commandLineDisplayString = try args.parseString(indexPath: indexPath + IndexPath(index: 4))
+        self.commandLineDisplayString = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 4))
         self.interestingPath = try args.parseOptionalString(indexPath: indexPath + IndexPath(index: 5))
         self.serializedDiagnosticsPaths = try args.parseStringArray(indexPath: indexPath + IndexPath(index: 6))
     }
@@ -102,7 +102,7 @@ extension BuildOperationTaskStarted.TaskDetails: EncodableRPCPayload {
             .binary(signature),
             .string(ruleInfo),
             .string(executionDescription),
-            .string(commandLineDisplayString),
+            commandLineDisplayString != nil ? .string(commandLineDisplayString!) : .nil,
             interestingPath.flatMap { .string($0) } ?? .nil,
             .array(serializedDiagnosticsPaths.map(MessagePackValue.string)),
         ]
