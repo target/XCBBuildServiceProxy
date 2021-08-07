@@ -38,8 +38,8 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         let bodyIndexPath = indexPath + IndexPath(index: 1)
         
         // convert from JSON
-        let data = try values.parseBinary(indexPath: bodyIndexPath)
         do {
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
             let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
             logger.debug("json for CREATE_BUILD: \(json)")
         } catch {
