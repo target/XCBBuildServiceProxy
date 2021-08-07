@@ -44,19 +44,20 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "CREATE_BUILD":
             // convert from JSON
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-                logger.debug("json for \(name): \(json)")
-            } catch {
-                logger.error("failed to convert to JSON for \(name): \(error)")
-            }
+//            do {
+//                let data = try values.parseBinary(indexPath: bodyIndexPath)
+//                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
+//                logger.debug("json for \(name): \(json)")
+//            } catch {
+//                logger.error("failed to convert to JSON for \(name): \(error)")
+//            }
             
             do {
                 let data = try values.parseBinary(indexPath: bodyIndexPath)
                 self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
             } catch {
-                logger.error("CREATE_BUILD parsing error. MessagePackValues: \(values)")
+                logger.error("CREATE_BUILD parsing error: \(error)")
+                logger.error("MessagePackValues: \(values)")
                 self = .unknownRequest(.init(values: values))
             }
         case "BUILD_START": self = .buildStartRequest(try values.parseObject(indexPath: bodyIndexPath))
