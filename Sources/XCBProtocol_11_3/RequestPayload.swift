@@ -1,7 +1,6 @@
 import Foundation
 import MessagePack
 import XCBProtocol
-import Logging
 
 public enum RequestPayload {
     case createSession(CreateSessionRequest)
@@ -40,16 +39,7 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         case "TRANSFER_SESSION_PIF_REQUEST": self = .transferSessionPIFRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "SET_SESSION_SYSTEM_INFO": self = .setSessionSystemInfo(try values.parseObject(indexPath: indexPath))
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
-        case "CREATE_BUILD":
-            // convert from JSON
-            let data = try values.parseBinary(indexPath: bodyIndexPath)
-            do {
-                let decodedJSON = try JSONDecoder().decode(CreateBuildRequest.self, from: data)
-                logger.info("json for CREATE_BUILD: \(decodedJSON")
-            } catch {
-                logger.error("failed to parse for CREATE_BUILD: \(error)")
-            }
-            self = .createBuildRequest(try values.parseObject(indexPath: bodyIndexPath))
+        case "CREATE_BUILD": self = .createBuildRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_START": self = .buildStartRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_CANCEL": self = .buildCancelRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "INDEXING_INFO_REQUESTED": self = .indexingInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
@@ -66,9 +56,3 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         }
     }
 }
-
-public func parseJSONData<T: Decodable>(type: T.Type = T.self, indexPath: IndexPath) throws -> T {
-        let data = try parseBinary(indexPath: indexPath)
-        let decodedJSON = try JSONDecoder().decode(T.self, from: data)
-        return decodedJSON
-    }
