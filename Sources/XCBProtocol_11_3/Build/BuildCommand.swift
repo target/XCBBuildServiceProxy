@@ -10,6 +10,7 @@ public enum BuildCommand: Int64, Decodable {
     case generatePreprocessedFile
     case cleanBuildFolder
     case preview
+    case enableIndexBuildArena
 }
 
 // MARK: - Decoding
