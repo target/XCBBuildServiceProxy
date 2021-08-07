@@ -1,1 +1,8 @@
-../../XCBProtocol_11_4/Build/ConfiguredTarget.swift
+import Foundation
+import MessagePack
+import XCBProtocol
+
+public struct ConfiguredTarget: Decodable {
+    public let guid: String
+    public let parameters: BuildParameters?
+}

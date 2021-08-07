@@ -2,7 +2,7 @@ import Foundation
 import MessagePack
 import XCBProtocol
 
-public enum BuildCommand: Int64 {
+public enum BuildCommand: Int64, Decodable {
     case build
     case prepareForIndexing
     case migrate

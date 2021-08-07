@@ -52,7 +52,8 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         case "SET_SESSION_SYSTEM_INFO": self = .setSessionSystemInfo(try values.parseObject(indexPath: indexPath))
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "CREATE_BUILD":
-            self = .createBuildRequest(try values.parseObject(indexPath: bodyIndexPath))
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
+            self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
         case "BUILD_START": self = .buildStartRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_CANCEL": self = .buildCancelRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "INDEXING_INFO_REQUESTED": self = .indexingInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
