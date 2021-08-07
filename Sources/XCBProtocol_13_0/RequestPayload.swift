@@ -37,21 +37,21 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         let name = try values.parseString(indexPath: indexPath + IndexPath(index: 0))
         let bodyIndexPath = indexPath + IndexPath(index: 1)
         
-        // convert from JSON
-        do {
-            let data = try values.parseBinary(indexPath: bodyIndexPath)
-            let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-            logger.debug("json for CREATE_BUILD: \(json)")
-        } catch {
-            logger.error("failed to parse for CREATE_BUILD: \(error)")
-        }
-        
         switch name {
         case "CREATE_SESSION": self = .createSession(try values.parseObject(indexPath: bodyIndexPath))
         case "TRANSFER_SESSION_PIF_REQUEST": self = .transferSessionPIFRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "SET_SESSION_SYSTEM_INFO": self = .setSessionSystemInfo(try values.parseObject(indexPath: indexPath))
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "CREATE_BUILD":
+            // convert from JSON
+            do {
+                let data = try values.parseBinary(indexPath: bodyIndexPath)
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
+                logger.debug("json for \(name): \(json)")
+            } catch {
+                logger.error("failed to convert to JSON for \(name): \(error)")
+            }
+            
             do {
                 let data = try values.parseBinary(indexPath: bodyIndexPath)
                 self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
