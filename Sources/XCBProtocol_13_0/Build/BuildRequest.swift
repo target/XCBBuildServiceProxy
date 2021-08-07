@@ -13,7 +13,7 @@ public struct BuildRequest: Decodable {
     public let showNonLoggedProgress: Bool
     public let buildCommand: BuildCommand
     public let schemeCommand: SchemeCommand
-    public let buildDescriptionID: String
+    public let buildDescriptionID: String?
     public let shouldCollectMetrics: Bool
     public let jsonRepresentation: String?
 }
