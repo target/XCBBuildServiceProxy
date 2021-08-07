@@ -10,4 +10,6 @@ public struct BuildParameters: Decodable {
     public let arenaInfo: ArenaInfo
     public let overrides: SettingsOverrides
 //    public let xbsParameters: MessagePackValue
+    
+    public var configuration: String { "Debug" }
 }

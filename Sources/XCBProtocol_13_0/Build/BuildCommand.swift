@@ -4,11 +4,11 @@ import XCBProtocol
 
 public struct BuildCommand: Decodable {
     
-    let command: Command
+    public let command: Command
     let enableIndexBuildArena: Bool
     let targets: String
     
-    enum Command: String, Decodable {
+    public enum Command: String, Decodable {
         case build
         case prepareForIndexing
         case migrate
