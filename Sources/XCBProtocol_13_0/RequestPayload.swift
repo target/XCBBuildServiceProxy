@@ -44,13 +44,13 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "CREATE_BUILD":
             // convert from JSON
-//            do {
-//                let data = try values.parseBinary(indexPath: bodyIndexPath)
-//                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-//                logger.debug("json for \(name): \(json)")
-//            } catch {
-//                logger.error("failed to convert to JSON for \(name): \(error)")
-//            }
+            do {
+                let data = try values.parseBinary(indexPath: bodyIndexPath)
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
+                logger.debug("json for \(name): \(json)")
+            } catch {
+                logger.error("failed to convert to JSON for \(name): \(error)")
+            }
             
             do {
                 let data = try values.parseBinary(indexPath: bodyIndexPath)
