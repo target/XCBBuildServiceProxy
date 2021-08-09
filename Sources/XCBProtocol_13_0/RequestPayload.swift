@@ -62,9 +62,28 @@ extension RequestPayload: XCBProtocol.RequestPayload {
             }
         case "BUILD_START": self = .buildStartRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_CANCEL": self = .buildCancelRequest(try values.parseObject(indexPath: bodyIndexPath))
-        case "INDEXING_INFO_REQUESTED": self = .indexingInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
-        case "PREVIEW_INFO_REQUESTED": self = .previewInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
+        case "INDEXING_INFO_REQUESTED":
+            // convert from JSON
+            do {
+                let data = try values.parseBinary(indexPath: bodyIndexPath)
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
+                logger.debug("json for \(name): \(json)")
+            } catch {
+                logger.error("failed to convert to JSON for \(name): \(error)")
+            }
             
+            self = .indexingInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
+        case "PREVIEW_INFO_REQUESTED":
+            // convert from JSON
+            do {
+                let data = try values.parseBinary(indexPath: bodyIndexPath)
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
+                logger.debug("json for \(name): \(json)")
+            } catch {
+                logger.error("failed to convert to JSON for \(name): \(error)")
+            }
+            
+            self = .previewInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
         default: self = .unknownRequest(.init(values: values))
         }
     }
