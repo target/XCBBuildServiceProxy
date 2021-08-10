@@ -14,7 +14,7 @@ public struct PreviewInfoRequest: Decodable {
         case sessionHandle
         case responseChannel
         case buildRequest = "request"
-        case targetGUID
+        case targetGUID = "targetID"
         case sourceFile
         case thunkVariantSuffix
     }
