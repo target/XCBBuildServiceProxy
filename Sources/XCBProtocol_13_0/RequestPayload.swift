@@ -43,62 +43,18 @@ extension RequestPayload: XCBProtocol.RequestPayload {
         case "SET_SESSION_SYSTEM_INFO": self = .setSessionSystemInfo(try values.parseObject(indexPath: indexPath))
         case "SET_SESSION_USER_INFO": self = .setSessionUserInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "CREATE_BUILD":
-            // convert from JSON
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-                logger.debug("json for \(name): \(json)")
-            } catch {
-                logger.error("failed to convert to JSON for \(name): \(error)")
-            }
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
+            self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
             
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
-            } catch {
-                logger.error("\(name) parsing error: \(error)")
-                logger.error("MessagePackValues: \(values)")
-                self = .unknownRequest(.init(values: values))
-            }
         case "BUILD_START": self = .buildStartRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_CANCEL": self = .buildCancelRequest(try values.parseObject(indexPath: bodyIndexPath))
         case "INDEXING_INFO_REQUESTED":
-            // convert from JSON
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-                logger.debug("json for \(name): \(json)")
-            } catch {
-                logger.error("failed to convert to JSON for \(name): \(error)")
-            }
-            
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                self = .indexingInfoRequest(try JSONDecoder().decode(IndexingInfoRequest.self, from: data))
-            } catch {
-                logger.error("\(name) parsing error: \(error)")
-                logger.error("MessagePackValues: \(values)")
-                self = .unknownRequest(.init(values: values))
-            }
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
+            self = .indexingInfoRequest(try JSONDecoder().decode(IndexingInfoRequest.self, from: data))
             
         case "PREVIEW_INFO_REQUESTED":
-            // convert from JSON
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-                logger.debug("json for \(name): \(json)")
-            } catch {
-                logger.error("failed to convert to JSON for \(name): \(error)")
-            }
-            
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                self = .previewInfoRequest(try JSONDecoder().decode(PreviewInfoRequest.self, from: data))
-            } catch {
-                logger.error("\(name) parsing error: \(error)")
-                logger.error("MessagePackValues: \(values)")
-                self = .unknownRequest(.init(values: values))
-            }
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
+            self = .previewInfoRequest(try JSONDecoder().decode(PreviewInfoRequest.self, from: data))
             
         default: self = .unknownRequest(.init(values: values))
         }
