@@ -72,12 +72,7 @@ extension ResponsePayload: XCBProtocol.ResponsePayload {
         case "PLANNING_OPERATION_WILL_START": self = .planningOperationWillStart(try values.parseObject(indexPath: bodyIndexPath))
         case "PLANNING_OPERATION_FINISHED": self = .planningOperationDidFinish(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TARGET_UPTODATE": self = .buildOperationTargetUpToDate(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TARGET_STARTED": self = .buildOperationTargetStarted(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TARGET_ENDED": self = .buildOperationTargetEnded(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TASK_UPTODATE": self = .buildOperationTaskUpToDate(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TASK_STARTED": self = .buildOperationTaskStarted(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_CONSOLE_OUTPUT_EMITTED": self = .buildOperationConsoleOutput(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TASK_ENDED":
+        case "BUILD_TARGET_STARTED":
             
             do {
                 let data = try values.parseBinary(indexPath: bodyIndexPath)
@@ -86,8 +81,12 @@ extension ResponsePayload: XCBProtocol.ResponsePayload {
             } catch {
                 logger.error("failed to convert to JSON for \(name): \(error)")
             }
-            
-            self = .buildOperationTaskEnded(try values.parseObject(indexPath: bodyIndexPath))
+            self = .buildOperationTargetStarted(try values.parseObject(indexPath: bodyIndexPath))
+        case "BUILD_TARGET_ENDED": self = .buildOperationTargetEnded(try values.parseObject(indexPath: bodyIndexPath))
+        case "BUILD_TASK_UPTODATE": self = .buildOperationTaskUpToDate(try values.parseObject(indexPath: bodyIndexPath))
+        case "BUILD_TASK_STARTED": self = .buildOperationTaskStarted(try values.parseObject(indexPath: bodyIndexPath))
+        case "BUILD_CONSOLE_OUTPUT_EMITTED": self = .buildOperationConsoleOutput(try values.parseObject(indexPath: bodyIndexPath))
+        case "BUILD_TASK_ENDED": self = .buildOperationTaskEnded(try values.parseObject(indexPath: bodyIndexPath))
         case "INDEXING_INFO_RECEIVED": self = .indexingInfo(try values.parseObject(indexPath: bodyIndexPath))
         case "PREVIEW_INFO_RECEIVED": self = .previewInfo(try values.parseObject(indexPath: bodyIndexPath))
             
