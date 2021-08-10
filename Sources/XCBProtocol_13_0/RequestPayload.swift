@@ -56,7 +56,7 @@ extension RequestPayload: XCBProtocol.RequestPayload {
                 let data = try values.parseBinary(indexPath: bodyIndexPath)
                 self = .createBuildRequest(try JSONDecoder().decode(CreateBuildRequest.self, from: data))
             } catch {
-                logger.error("CREATE_BUILD parsing error: \(error)")
+                logger.error("\(name) parsing error: \(error)")
                 logger.error("MessagePackValues: \(values)")
                 self = .unknownRequest(.init(values: values))
             }
@@ -83,7 +83,15 @@ extension RequestPayload: XCBProtocol.RequestPayload {
                 logger.error("failed to convert to JSON for \(name): \(error)")
             }
             
-            self = .previewInfoRequest(try values.parseObject(indexPath: bodyIndexPath))
+            do {
+                let data = try values.parseBinary(indexPath: bodyIndexPath)
+                self = .previewInfoRequest(try JSONDecoder().decode(PreviewInfoRequest.self, from: data))
+            } catch {
+                logger.error("\(name) parsing error: \(error)")
+                logger.error("MessagePackValues: \(values)")
+                self = .unknownRequest(.init(values: values))
+            }
+            
         default: self = .unknownRequest(.init(values: values))
         }
     }
