@@ -74,14 +74,8 @@ extension ResponsePayload: XCBProtocol.ResponsePayload {
         case "BUILD_TARGET_UPTODATE": self = .buildOperationTargetUpToDate(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TARGET_STARTED":
             
-            do {
-                let data = try values.parseBinary(indexPath: bodyIndexPath)
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String : Any]
-                logger.debug("json for \(name): \(json)")
-            } catch {
-                logger.error("failed to convert to JSON for \(name): \(error)")
-            }
-            self = .buildOperationTargetStarted(try values.parseObject(indexPath: bodyIndexPath))
+            let data = try values.parseBinary(indexPath: bodyIndexPath)
+            self = .buildOperationTargetStarted(try JSONDecoder().decode(BuildOperationTargetStarted.self, from: data))
         case "BUILD_TARGET_ENDED": self = .buildOperationTargetEnded(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TASK_UPTODATE": self = .buildOperationTaskUpToDate(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TASK_STARTED": self = .buildOperationTaskStarted(try values.parseObject(indexPath: bodyIndexPath))
