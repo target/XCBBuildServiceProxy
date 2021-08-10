@@ -11,6 +11,7 @@ public struct BuildOperationDiagnosticEmitted {
     public let appendToOutputStream: Bool // If `true`, it's attached to the output instead of showing as a new entry
     public let unknown2: MessagePackValue // ???
     public let unknown3: MessagePackValue // Might be `childDiagnostics`
+    public let unknown4: MessagePackValue
     
     public init(
         kind: BuildOperationDiagnosticKind,
@@ -28,6 +29,7 @@ public struct BuildOperationDiagnosticEmitted {
         self.appendToOutputStream = appendToOutputStream
         self.unknown2 = .nil
         self.unknown3 = .array([])
+        self.unknown4 = .array([])
     }
 }
 
@@ -41,7 +43,7 @@ extension BuildOperationDiagnosticEmitted: ResponsePayloadConvertible {
 
 extension BuildOperationDiagnosticEmitted: DecodableRPCPayload {
     public init(args: [MessagePackValue], indexPath: IndexPath) throws {
-        guard args.count == 8 else { throw RPCPayloadDecodingError.invalidCount(args.count, indexPath: indexPath) }
+        guard args.count == 9 else { throw RPCPayloadDecodingError.invalidCount(args.count, indexPath: indexPath) }
         
         self.kind = try args.parseObject(indexPath: indexPath + IndexPath(index: 0))
         self.location = try args.parseObject(indexPath: indexPath + IndexPath(index: 1))
@@ -51,6 +53,7 @@ extension BuildOperationDiagnosticEmitted: DecodableRPCPayload {
         self.appendToOutputStream = try args.parseBool(indexPath: indexPath + IndexPath(index: 5))
         self.unknown2 = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 6))
         self.unknown3 = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 7))
+        self.unknown4 = try args.parseUnknown(indexPath: indexPath + IndexPath(index: 8))
     }
 }
 

@@ -43,7 +43,7 @@ extension BuildOperationDiagnosticEmitted: ResponsePayloadConvertible {
 
 extension BuildOperationDiagnosticEmitted: DecodableRPCPayload {
     public init(args: [MessagePackValue], indexPath: IndexPath) throws {
-        guard args.count == 8 else { throw RPCPayloadDecodingError.invalidCount(args.count, indexPath: indexPath) }
+        guard args.count == 9 else { throw RPCPayloadDecodingError.invalidCount(args.count, indexPath: indexPath) }
             
         self.kind = try args.parseObject(indexPath: indexPath + IndexPath(index: 0))
         self.location = try args.parseObject(indexPath: indexPath + IndexPath(index: 1))
