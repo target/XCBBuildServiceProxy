@@ -3,8 +3,6 @@ import MessagePack
 import XCBProtocol
 import Logging
 
-let logger = Logger(label: "XCBProtocol_13")
-
 public enum RequestPayload {
     case createSession(CreateSessionRequest)
     case transferSessionPIFRequest(TransferSessionPIFRequest)

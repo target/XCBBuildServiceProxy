@@ -2,7 +2,7 @@ import Foundation
 import MessagePack
 import XCBProtocol
 
-public enum BuildCommand: Int64, Decodable {
+public enum BuildCommand: Int64 {
     case build
     case prepareForIndexing
     case migrate
@@ -10,7 +10,6 @@ public enum BuildCommand: Int64, Decodable {
     case generatePreprocessedFile
     case cleanBuildFolder
     case preview
-    case enableIndexBuildArena
 }
 
 // MARK: - Decoding
