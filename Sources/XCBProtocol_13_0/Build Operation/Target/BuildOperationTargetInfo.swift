@@ -8,7 +8,7 @@ public struct BuildOperationTargetInfo: Decodable {
     public let projectInfo: BuildOperationProjectInfo
     public let configurationName: String // e.g. "Debug"
     public let configurationIsDefault: Bool
-    public let sdkRoot: String // e.g. "/Applications/Xcode-11.3.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk"
+    public let sdkRoot: String? // e.g. "/Applications/Xcode-11.3.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk"
     
     public init(
         name: String,
@@ -16,7 +16,7 @@ public struct BuildOperationTargetInfo: Decodable {
         projectInfo: BuildOperationProjectInfo,
         configurationName: String,
         configurationIsDefault: Bool,
-        sdkRoot: String
+        sdkRoot: String?
     ) {
         self.name = name
         self.typeName = typeName
@@ -37,7 +37,7 @@ extension BuildOperationTargetInfo: EncodableRPCPayload {
             .array(projectInfo.encode()),
             .string(configurationName),
             .bool(configurationIsDefault),
-            .string(sdkRoot),
+            sdkRoot.flatMap { .string($0) } ?? .nil,
         ]
     }
 }
