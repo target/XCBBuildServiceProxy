@@ -88,7 +88,7 @@ extension BuildOperationTaskStarted: EncodableRPCPayload {
     public func encode() -> [MessagePackValue] {
         return [
             .int64(taskID),
-            targetID != nil ? .int64(targetID!) : .nil,
+            targetID.flatMap { .int64($0) } ?? .nil,
             parentTaskID.flatMap { .int64($0) } ?? .nil,
             .array(taskDetails.encode()),
         ]
@@ -102,7 +102,7 @@ extension BuildOperationTaskStarted.TaskDetails: EncodableRPCPayload {
             .binary(signature),
             .string(ruleInfo),
             .string(executionDescription),
-            commandLineDisplayString != nil ? .string(commandLineDisplayString!) : .nil,
+            commandLineDisplayString.flatMap { .string($0) } ?? .nil,
             interestingPath.flatMap { .string($0) } ?? .nil,
             .array(serializedDiagnosticsPaths.map(MessagePackValue.string)),
         ]

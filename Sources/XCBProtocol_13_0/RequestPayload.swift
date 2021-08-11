@@ -1,7 +1,6 @@
 import Foundation
 import MessagePack
 import XCBProtocol
-import Logging
 
 public enum RequestPayload {
     case createSession(CreateSessionRequest)

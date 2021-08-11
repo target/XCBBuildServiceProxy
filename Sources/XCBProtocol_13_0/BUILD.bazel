@@ -7,7 +7,6 @@ swift_library(
     deps = [
         "//Sources/MessagePack",
         "//Sources/XCBProtocol",
-        "@com_github_apple_swift_log//:Logging",
     ],
     visibility = ["//visibility:public"],
 )
