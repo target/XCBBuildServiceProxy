@@ -72,10 +72,11 @@ extension ResponsePayload: XCBProtocol.ResponsePayload {
         case "PLANNING_OPERATION_WILL_START": self = .planningOperationWillStart(try values.parseObject(indexPath: bodyIndexPath))
         case "PLANNING_OPERATION_FINISHED": self = .planningOperationDidFinish(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TARGET_UPTODATE": self = .buildOperationTargetUpToDate(try values.parseObject(indexPath: bodyIndexPath))
-        case "BUILD_TARGET_STARTED":
             
+        case "BUILD_TARGET_STARTED":
             let data = try values.parseBinary(indexPath: bodyIndexPath)
             self = .buildOperationTargetStarted(try JSONDecoder().decode(BuildOperationTargetStarted.self, from: data))
+            
         case "BUILD_TARGET_ENDED": self = .buildOperationTargetEnded(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TASK_UPTODATE": self = .buildOperationTaskUpToDate(try values.parseObject(indexPath: bodyIndexPath))
         case "BUILD_TASK_STARTED": self = .buildOperationTaskStarted(try values.parseObject(indexPath: bodyIndexPath))
