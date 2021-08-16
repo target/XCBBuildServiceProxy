@@ -1,0 +1,13 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "XCBProtocol_13_0",
+    srcs = glob(["**/*.swift"]),
+    module_name = "XCBProtocol_13_0",
+    deps = [
+        "//Sources/MessagePack",
+        "//Sources/XCBProtocol",
+    ],
+    visibility = ["//visibility:public"],
+)
+
