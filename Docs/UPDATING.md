@@ -12,6 +12,7 @@ The `XCBBuildService` lives here: `$(XCODE_DIR)/Contents/SharedFrameworks/XCBuil
 
 ### Prepping for a new version of Xcode:
 * Create a new module inside `/Sources` following the established pattern. (e.g. `XCBProtocol_14_0`)
+* You'll notice we make use of symlinks to old versions. Rather than copying every single file into the new `XCBProtocol` version, only copy files you need to change. For the rest, create a symlink to the most recent version of the file. You'll see lots of symlinks all the way back to Xcode 11.4!
 * Update `Examples/BazelXCBBuildService/BUILD.bazel` and `Examples/BazelXCBBuildService/Packge.swift` to point at that new module
 * Update `Examples/BazelXCBBuildService/Sources/RequestHandler.swift` to assign the appropriate `RequestPayload` and `ResponsePayload` types to the `BazelXCBBuildServiceRequestPayload` and `BazelXCBBuildServiceResponsePayload` typealiases.
 * Rename the original `XCBBuildService` in the Xcode bundle to `XCBBuildService.original`, just in case you want it again.
