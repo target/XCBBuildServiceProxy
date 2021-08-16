@@ -46,7 +46,7 @@ To set up `BazelXCBBuildService` for debugging:
 		```
 	1. If there are three files (`XCBBuildService.original`, `XCBBuildService`, and `BazelXCBBuildService`), `BazelXCBBuildService` is installed in that version of Xcode. To uninstall it, delete `XCBBuildService` and `BazelXCBBuildService`, and rename `XCBBuildService.original` to `XCBBuildService`.
 1. Open `tools/BazelXCBBuildService` in the "debugging" Xcode and build a debug version of BazelXCBBuildService.
-1. Copy the built, debug version of `BazelXCBBuildService` from the DerivedData folder into the "main" version of Xcode that we use for the app store app:
+1. Copy the built, debug version of `BazelXCBBuildService` from the DerivedData folder into the "main" version of Xcode:
 	```sh
 	FOLDER=$(ls ~/Library/Developer/Xcode/DerivedData | grep BazelXCBBuildService)
 	cp ~/Library/Developer/Xcode/DerivedData/$FOLDER/Build/Products/Debug/BazelXCBBuildService \
