@@ -5,7 +5,7 @@ set -euo pipefail
 readonly service_path="$1"
 readonly output_path="$2"
 readonly xcode_version="$3"
-readonly log_base="${4:-"/tmp/Flagship-bazel-trace/XCBBuildService-$xcode_version"}"
+readonly log_base="${4:-"/tmp/Bazel-trace/XCBBuildService-$xcode_version"}"
 
 cat <<-END > "$output_path"
 #!/bin/bash
