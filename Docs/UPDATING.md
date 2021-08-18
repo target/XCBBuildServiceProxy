@@ -15,20 +15,22 @@ The `XCBBuildService` lives here: `$(XCODE_DIR)/Contents/SharedFrameworks/XCBuil
 `write_shim.sh` will create a fake `XCBBuildService` that simply calls the `BazelXCBBuildService` while redirecting `STDERR` to a log file in `/tmp/Bazel-trace/`.
 
 ### Prepping for a new version of Xcode:
-* Create a new module inside `/Sources` following the established pattern. (e.g. `XCBProtocol_14_0`)
-* You'll notice we make use of symlinks to old versions. Rather than copying every single file into the new `XCBProtocol` version, only copy files you need to change. For the rest, create a symlink to the most recent version of the file. You'll see lots of symlinks all the way back to Xcode 11.4!
-* Update `Examples/BazelXCBBuildService/BUILD.bazel` and `Examples/BazelXCBBuildService/Packge.swift` to point at that new module
+
+* Create a new module inside `/Sources` following the established pattern. (e.g. `XCBProtocol_14_0`).
+* You'll notice we make use of symlinks to old versions of the files. Rather than copying every single file into the new `XCBProtocol` version, only copy files you need to change. For the rest, create a symlink to the previous version of the file (which may be a symlink itself). You'll see lots of symlinks pointing all the way back to the Xcode 11.4 versions!
+* Update `Examples/BazelXCBBuildService/BUILD.bazel` and `Examples/BazelXCBBuildService/Packge.swift` to point at that new module.
 * Update `Examples/BazelXCBBuildService/Sources/RequestHandler.swift` to assign the appropriate `RequestPayload` and `ResponsePayload` types to the `BazelXCBBuildServiceRequestPayload` and `BazelXCBBuildServiceResponsePayload` typealiases.
 * Rename the original `XCBBuildService` in the Xcode bundle to `XCBBuildService.original`, just in case you want it again.
 
 ### Development loop:
-* Rebuild: `bazel build BazelXCBBuildService`
-* Move it into the proper folder: `My-New-Xcode.app/Contents/SharedFrameworks/XCBuild.framework/PlugIns/XCBBuildService.bundle/Contents/MacOS/BazelXCBBuildService`
-* Run `write_shim.sh` to set up logging into `/tmp/Bazel-trace/`
-* Restart Xcode
-* Do some actions in Xcode, then view the logs, are there any errors?
+
+* Rebuild with `bazel build BazelXCBBuildService`.
+* Move it into the proper folder: `My-New-Xcode.app/Contents/SharedFrameworks/XCBuild.framework/PlugIns/XCBBuildService.bundle/Contents/MacOS/BazelXCBBuildService`.
+* Run `write_shim.sh` to set up logging into `/tmp/Bazel-trace/`.
+* Restart Xcode.
+* Do some actions in Xcode, then view the logs. Are there any errors?
 * Make a change in the project fixing an error or adding extra logs you deem necessary.
-* Repeat
+* Repeat as necessary.
 
 ## Xcode Debugger
 
@@ -52,8 +54,11 @@ To set up `BazelXCBBuildService` for debugging:
 	cp ~/Library/Developer/Xcode/DerivedData/$FOLDER/Build/Products/Debug/BazelXCBBuildService \
 	/Applications/Xcode-<main-version>.app/Contents/SharedFrameworks/XCBuild.framework/PlugIns/XCBBuildService.bundle/Contents/MacOS/
 	```
-1. In the "debugging" Xcode Go to "Debug" > "Attach to process by PID or Name" and type in "BazelXCBBuildService" if it's not already pre-filled.
+1. Prepare the debugger to attach to the service:
+	1. Open the scheme for this build, and navigate to the "Run" section on the left-hand sidebar
+	1. In the "Info" tab, for the "Launch" option, select "Wait for the executable to be launched"
 1. Set some breakpoints if desired
+1. Build and run as normal, Xcode will wait for the binary to be launched and automatically attache its debugger
 1. Start the "main" Xcode (Note: it may freeze if breakpoints are hit in `BazelXCBBuildService`)
 1. Check that the "debugging" Xcode has attached to `BazelXCBBuildService`
 1. Perform build actions in the "main" Xcode and debug `BazelXCBBuildService` using the "debugging" Xcode 🎉
