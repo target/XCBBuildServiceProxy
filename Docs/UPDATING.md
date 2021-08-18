@@ -34,10 +34,19 @@ The `XCBBuildService` lives here: `$(XCODE_DIR)/Contents/SharedFrameworks/XCBuil
 
 ## Xcode Debugger
 
-To debug `BazelXCBBuildService` while it is being used by Xcode, you will need two versions of Xcode. (e.g. 12.5.0 and 13.0.0)
+To debug `BazelXCBBuildService` while it is being used by Xcode, you will need to have two versions of Xcode running.
 
-1. Main version: The version required to build the app.
-1. Debugging version: A different version that can build and attach to `BazelXCBBuildService`. (It can be a newer or older version than the "main" version of Xcode).
+1. "Main" Xcode: An instance of Xcode that uses our XCBBuildServiceProxy. This version will be used to build and run your app.
+1. "Debugging" Xcode: An instance of Xcode that uses the original XCBBuildService shipped with Xcode. This version will be used to debug the "main" instance of Xcode.
+
+Getting two instances of Xcode going can be done a couple of ways:
+
+- Use two separate versions of Xcode (e.g. 12.5.0 and 13.0.0).
+- Modify the `XCBBUILDSERVICE_PATH` environment variable, and launch two instances of the same Xcode version.
+	- Xcode looks to see if `XCBBUILDSERVICE_PATH` is set. If it is, it will use that instead of `Contents/SharedFrameworks/XCBuild.framework/PlugIns/XCBBuildService.bundle/Contents/MacOS/XCBBuildService`. So after launching your "main" instance of Xcode, you can launch a "debugging" instance of Xcode that uses the original XCBBuildService by using the following command:
+		```shell
+		env XCBBUILDSERVICE_PATH=/Application/Xcode.app/Contents/SharedFrameworks/XCBuild.framework/PlugIns/XCBBuildService.bundle/Contents/MacOS/XCBBuildService.original /Application/Xcode.app/Contents/MacOS/Xcode`
+		```
 
 To set up `BazelXCBBuildService` for debugging:
 
