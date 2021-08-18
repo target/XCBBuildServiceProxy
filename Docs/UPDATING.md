@@ -34,7 +34,7 @@ The `XCBBuildService` lives here: `$(XCODE_DIR)/Contents/SharedFrameworks/XCBuil
 
 ## Xcode Debugger
 
-To debug `BazelXCBBuildService` while it is being used by Xcode, you will need to have two versions of Xcode running.
+To debug `BazelXCBBuildService` while it is being used by Xcode, you will need to have two instances of Xcode running:
 
 1. "Main" Xcode: An instance of Xcode that uses our XCBBuildServiceProxy. This version will be used to build and run your app.
 1. "Debugging" Xcode: An instance of Xcode that uses the original XCBBuildService shipped with Xcode. This version will be used to debug the "main" instance of Xcode.
