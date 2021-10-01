@@ -7,7 +7,7 @@ public struct IndexingInfoRequest: Decodable {
     public let responseChannel: UInt64
     public let buildRequest: BuildRequest
     public let targetGUID: String
-    public let filePath: String?
+    public let filePath: String
     public let outputPathOnly: Bool
     
     enum CodingKeys: String, CodingKey {
