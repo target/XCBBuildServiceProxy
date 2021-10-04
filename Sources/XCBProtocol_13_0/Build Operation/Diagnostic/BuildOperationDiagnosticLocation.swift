@@ -32,7 +32,7 @@ extension BuildOperationDiagnosticLocation: DecodableRPCPayload {
             
         case 2:
             let sourceRangeArgs = try args.parseArray(indexPath: indexPath + IndexPath(index: 1))
-            self = .sourceRanges(try targetArgs.parseStringArray(indexPath: indexPath + IndexPath(indexes: [1, 0])))
+            self = .sourceRanges(try sourceRangeArgs.parseStringArray(indexPath: indexPath + IndexPath(indexes: [1, 0])))
             
         default:
             throw RPCPayloadDecodingError.incorrectValueType(indexPath: indexPath + IndexPath(index: 0), expectedType: Self.self)
