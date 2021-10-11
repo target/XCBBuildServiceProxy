@@ -10,6 +10,40 @@ swift_library(
         ":CNIODarwin",
         ":CNIOLinux",
         ":NIOConcurrencyHelpers",
+        ":NIOCore",
+        ":NIOEmbedded",
+        ":NIOPosix",
+    ],
+)
+
+swift_library(
+    name = "NIOEmbedded",
+    srcs = glob(["Sources/NIOEmbedded/**/*.swift"]),
+    deps = [
+      ":_NIODataStructures",
+      ":NIOCore",
+    ],
+)
+
+swift_library(
+    name = "_NIODataStructures",
+    srcs = glob(["Sources/_NIODataStructures/**/*.swift"]),
+    deps = [],
+)
+
+swift_library(
+    name = "NIOPosix",
+    srcs = glob(["Sources/NIOPosix/**/*.swift"]),
+    deps = [
+      ":NIOCore",
+    ],
+)
+
+swift_library(
+    name = "NIOCore",
+    srcs = glob(["Sources/NIOCore/**/*.swift"]),
+    deps = [
+      ":NIOConcurrencyHelpers",
     ],
 )
 
@@ -44,6 +78,7 @@ objc_library(
         "Sources/CNIODarwin/include/**/*.h",
     ]),
     includes = ["Sources/CNIODarwin/include"],
+    defines = ["__APPLE_USE_RFC_3542"],
 )
 
 objc_library(
