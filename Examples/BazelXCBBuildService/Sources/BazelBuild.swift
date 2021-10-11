@@ -1,6 +1,7 @@
 import Foundation
 import XCBBuildServiceProxy
 import XCBProtocol
+@_exported import XCBProtocol_13_0
 
 // swiftformat:disable braces
 
@@ -89,7 +90,7 @@ final class BazelBuild {
         
         self.buildContext = buildContext
 
-        switch buildRequest.buildCommand {
+        switch buildRequest.buildCommand.command {
         case .cleanBuildFolder:
             self.buildProcess = CleanBuildFolderProcess(
                 buildProductsPath: buildRequest.parameters.arenaInfo.buildProductsPath,
@@ -114,7 +115,7 @@ final class BazelBuild {
     /// - Returns: `true` if the target shouldn't be build for the `buildRequest`.
     ///   e.g. test targets are set in Xcode 11.3 for SwiftUI previews, even though we don't need to build them.
     static func shouldSkipTarget(_ target: Target, buildRequest: BuildRequest) -> Bool {
-        guard buildRequest.buildCommand == .preview else { return false }
+        guard buildRequest.buildCommand.command == .preview else { return false }
 
         return target.name.hasSuffix("Testing")
             || target.name == "TestingCore"
@@ -146,7 +147,7 @@ final class BazelBuild {
         let developerDir = baseEnvironment["DEVELOPER_DIR"]!
         let platformDir = "\(developerDir)/Platforms/\(parameters.activeRunDestination.platform.directoryName)"
         let platformDeveloperDir = "\(platformDir)/Developer"
-        let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant.directoryName)"
+        let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
 
         let environment = Self.generateEnvironment(
             baseEnvironment: baseEnvironment,
@@ -466,7 +467,7 @@ final class BazelBuild {
                     let parameters = installTarget?.parameters ?? buildRequest.parameters
                     let platformDir = "\(developerDir)/Platforms/\(parameters.activeRunDestination.platform.directoryName)"
                     let platformDeveloperDir = "\(platformDir)/Developer"
-                    let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant.directoryName)"
+                    let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
                     let configuration = parameters.configuration
 
                     let commandLineString = startProcessHandler(
@@ -810,7 +811,8 @@ private extension BuildOperationProjectInfo {
         self.init(
             name: parsedProject.name,
             path: parsedProject.path,
-            isPackage: parsedProject.isPackage
+            isPackage: parsedProject.isPackage,
+            isNameUniqueInWorkspace: true
         )
     }
 }
