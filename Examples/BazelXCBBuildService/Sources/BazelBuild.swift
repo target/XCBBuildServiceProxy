@@ -50,6 +50,8 @@ final class BazelBuild {
     
     private var buildProgress: Double = -1.0
     private var initialActionCount: Int = 0
+    private var totalActions: Int = 0
+    private var completedActions: Int = 0
     
     private let bazelTargets: [(target: Target, label: String, xcodeLabel: String)]
     private let nonBazelTargets: [Target]
@@ -418,10 +420,11 @@ final class BazelBuild {
                 let actualTargetPatterns = actualLabels.joined(separator: " ")
                 
                 buildContext.planningStarted()
-                buildContext.progressUpdate("Building with Bazel", percentComplete: -1.0, showInLog: true)
+                buildContext.progressUpdate("Building with Bazel", completedTasks: "", percentComplete: -1.0, showInLog: true)
                 if !bazelTargets.isEmpty {
                     buildContext.progressUpdate(
-                        "Preparing build for \(actualLabels.count == 1 ? "label" : "labels"): \(actualTargetPatterns)",
+                        "Preparing build for: \(actualTargetPatterns)",
+                        completedTasks: "",
                         percentComplete: -1.0,
                         showInLog: true
                     )
@@ -444,6 +447,7 @@ final class BazelBuild {
                     if uniquedActions {
                         buildContext.progressUpdate(
                             "Actually building \(uniqueActualLabels.count == 1 ? "label" : "labels"): \(uniqueActualLabels.joined(separator: " "))",
+                            completedTasks: "",
                             percentComplete: -1.0,
                             showInLog: true
                         )
@@ -519,6 +523,7 @@ final class BazelBuild {
                 if bazelTargets.count > 1 {
                     buildContext.progressUpdate(
                         "Determining unique targets",
+                        completedTasks: "",
                         percentComplete: -1.0,
                         showInLog: true
                     )
@@ -616,6 +621,8 @@ final class BazelBuild {
                             let completedActions = Int(completedActionsString),
                             let totalActions = Int(totalActionsString)
                         {
+                            self.totalActions = totalActions
+                            self.completedActions = completedActions
                             if self.initialActionCount == 0, completedActions > 0, completedActions != totalActions {
                                 self.initialActionCount = completedActions
                             }
@@ -634,7 +641,7 @@ final class BazelBuild {
                 
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    buildContext.progressUpdate(message, percentComplete: self.buildProgress)
+                    buildContext.progressUpdate(message, completedTasks: "\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
                 }
             },
             terminationHandler: { [buildContext, bazelTargets] exitCode, cancelled in
@@ -683,11 +690,11 @@ private extension BuildContext where ResponsePayload == BazelXCBBuildServiceResp
         sendResponseMessage(BuildOperationReportPathMap())
     }
     
-    func progressUpdate(_ message: String, percentComplete: Double, showInLog: Bool = false) {
+    func progressUpdate(_ message: String, completedTasks: String, percentComplete: Double, showInLog: Bool = false) {
         sendResponseMessage(
             BuildOperationProgressUpdated(
-                targetName: nil,
                 statusMessage: message,
+                completedTasks: completedTasks,
                 percentComplete: percentComplete,
                 showInLog: showInLog
             )
