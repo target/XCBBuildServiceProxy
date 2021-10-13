@@ -159,7 +159,6 @@ final class BazelClient: BazelBuildProcess {
             processDispatchGroup.leave()
         }
         
-        
         processDispatchGroup.notify(queue: processResultsQueue) {
             logger.info("\(self.isCancelled ? "Cancelled Bazel" : "Bazel") build exited with status code: \(self.process.terminationStatus)")
             isTerminated = true
