@@ -358,7 +358,10 @@ extension RequestHandler {
             }.flatMap { futures in
                 EventLoopFuture.reduce(into: [:], futures, on: context.eventLoop) { targetMappings, projectTargets in
                     for case let projectTarget in projectTargets {
-                        targetMappings[projectTarget.xcodeGUID] = projectTarget
+                        //RAPPI: We only need Bazel target since everything is wrapped in it
+                        if projectTarget.name == "Bazel" {
+                            targetMappings[projectTarget.xcodeGUID] = projectTarget
+                        }
                     }
                 }
             }.map { .some($0) }
