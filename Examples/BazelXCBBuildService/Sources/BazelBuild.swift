@@ -103,9 +103,13 @@ final class BazelBuild {
 
         default:
             self.buildProcess = BazelClient()
-            (self.bazelTargets, self.nonBazelTargets) = targets.bazelTargets(
-                for: buildRequest.parameters.configuration
-            )
+            //RAPPI: Override of targets since we only have one
+            self.bazelTargets = targets.map { ($0, $0.name, "") }
+            self.nonBazelTargets = []
+            //RAPPI: Kept original implementation
+//            (self.bazelTargets, self.nonBazelTargets) = targets.bazelTargets(
+//                for: buildRequest.parameters.configuration
+//            )
         }
     }
     
