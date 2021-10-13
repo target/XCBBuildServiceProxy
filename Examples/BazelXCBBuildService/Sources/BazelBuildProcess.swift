@@ -43,9 +43,11 @@ final class BazelClient: BazelBuildProcess {
     private let bepPath: String
     
     init() {
-        self.bepPath = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-            .appendingPathComponent(ProcessInfo().globallyUniqueString).path
-        
+        //RAPPI: We use the same BEP path as XCBuildKit since it was first implemented in Rappi
+        self.bepPath = "/tmp/bep.bep"
+//        self.bepPath = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+//            .appendingPathComponent(ProcessInfo().globallyUniqueString).path
+        print("BEP Path: \(self.bepPath)")
         self.process = Process()
         
         // Automatically terminate process if our process exits
