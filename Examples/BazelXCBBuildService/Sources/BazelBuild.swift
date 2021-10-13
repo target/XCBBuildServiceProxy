@@ -424,11 +424,11 @@ final class BazelBuild {
                 let actualTargetPatterns = actualLabels.joined(separator: " ")
                 
                 buildContext.planningStarted()
-                buildContext.progressUpdate("Building with Bazel", completedTasks: "", percentComplete: -1.0, showInLog: true)
+                buildContext.progressUpdate("Building with Bazel", completedTasks: "1/1", percentComplete: -1.0, showInLog: true)
                 if !bazelTargets.isEmpty {
                     buildContext.progressUpdate(
                         "Preparing build for: \(actualTargetPatterns)",
-                        completedTasks: "",
+                        completedTasks: "1/1",
                         percentComplete: -1.0,
                         showInLog: true
                     )
@@ -451,7 +451,7 @@ final class BazelBuild {
                     if uniquedActions {
                         buildContext.progressUpdate(
                             "Actually building \(uniqueActualLabels.count == 1 ? "label" : "labels"): \(uniqueActualLabels.joined(separator: " "))",
-                            completedTasks: "",
+                            completedTasks: "1/1",
                             percentComplete: -1.0,
                             showInLog: true
                         )
@@ -530,7 +530,7 @@ final class BazelBuild {
                 if bazelTargets.count > 1 {
                     buildContext.progressUpdate(
                         "Determining unique targets",
-                        completedTasks: "",
+                        completedTasks: "1/1",
                         percentComplete: -1.0,
                         showInLog: true
                     )

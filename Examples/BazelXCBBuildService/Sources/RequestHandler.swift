@@ -171,8 +171,8 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
 //                        continue
 //                    }
                     
-                    //RAPPI: Here we will filter bazel target
-                    guard bazelTarget.name == "Bazel" else { continue }
+                    //RAPPI: Here we will filter Grability target
+                    guard bazelTarget.name == "Grability" else { continue }
 
                     bazelTarget.parameters = target.parameters
 
