@@ -299,20 +299,26 @@ extension RequestHandler {
         context: Context,
         workspacePIFFuture: EventLoopFuture<WorkspacePIF>
     ) -> EventLoopFuture<Bool> {
-        return workspacePIFFuture.flatMap { [fileIO] pif in
-            let path = "\(pif.path)/xcshareddata/BazelXCBBuildServiceSettings.plist"
-            return fileIO.openFile(path: path, eventLoop: context.eventLoop)
-                .map { fileHandle, _ in
-                    // Close the file, we just wanted to ensure it exists for now
-                    // Later we might read the contents
-                    try? fileHandle.close()
-                    logger.debug("“\(path)” found. Building with Bazel.")
-                    return true
-                }.recover { error in
-                    logger.debug("“\(path)” could not be opened (\(error)). Not building with Bazel.")
-                    return false
-                }
-        }
+        //RAPPI: By default every project will be enabled, it will be filtered by the targets instead
+        let promise = context.eventLoop.makePromise(of: Bool.self)
+        promise.succeed(true)
+        return promise.futureResult
+        //RAPPI: Keeped original solution for merge/sync facilities
+
+//        return workspacePIFFuture.flatMap { [fileIO] pif in
+//            let path = "\(pif.path)/xcshareddata/BazelXCBBuildServiceSettings.plist"
+//            return fileIO.openFile(path: path, eventLoop: context.eventLoop)
+//                .map { fileHandle, _ in
+//                    // Close the file, we just wanted to ensure it exists for now
+//                    // Later we might read the contents
+//                    try? fileHandle.close()
+//                    logger.debug("“\(path)” found. Building with Bazel.")
+//                    return true
+//                }.recover { error in
+//                    logger.debug("“\(path)” could not be opened (\(error)). Not building with Bazel.")
+//                    return false
+//                }
+//        }
     }
     
     /// - Returns: parsed projects or an error, if we should build with Bazel, or `nil` if we shouldn't.
