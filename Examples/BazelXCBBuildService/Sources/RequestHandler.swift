@@ -144,7 +144,10 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
             let session = message.sessionHandle
             
             // Reset in case we decide not to build
+            sessionBazelBuilds[session]?.cancel()
             sessionBazelBuilds[session] = nil
+            
+            guard message.buildRequest.buildCommand.command == .build else { return }
             
             handleBazelTargets(session: session) { baseEnvironment, bazelTargets, xcodeBuildVersion in
                 logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets.map { $1.name })")
