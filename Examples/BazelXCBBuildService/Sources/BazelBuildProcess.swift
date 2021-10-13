@@ -211,32 +211,34 @@ final class BazelClient: BazelBuildProcess {
                 )
             },
             { [process, bepPath] finalTargetPatterns, workingDirectory, environment in
-                var environment = environment
-                environment["NBS_BEP_PATH"] = bepPath
-
-                process.launchPath = "/bin/bash"
-                process.currentDirectoryPath = workingDirectory
-                process.environment = environment
-                process.arguments = [
-                    "-c",
-                    "bazel/xcode.sh nbs \(finalTargetPatterns)",
-                ]
-
-                let command = "\(process.launchPath!) \(process.arguments!.joined(separator: " "))"
-                logger.info("Starting Bazel with command: \(command)")
-
-                process.launch()
-
-                return """
-                cd \(process.currentDirectoryPath)
-                \(
-                    (process.environment ?? [:])
-                        .sorted { $0.key < $1.key }
-                        .map { "export \($0)=\($1.exportQuoted)" }
-                        .joined(separator: "\n")
-                )
-                \(command)
-                """
+                //RAPPI: We handle our own Bazel build process
+                return ""
+//                var environment = environment
+//                environment["NBS_BEP_PATH"] = bepPath
+//
+//                process.launchPath = "/bin/bash"
+//                process.currentDirectoryPath = workingDirectory
+//                process.environment = environment
+//                process.arguments = [
+//                    "-c",
+//                    "bazel/xcode.sh nbs \(finalTargetPatterns)",
+//                ]
+//
+//                let command = "\(process.launchPath!) \(process.arguments!.joined(separator: " "))"
+//                logger.info("Starting Bazel with command: \(command)")
+//
+//                process.launch()
+//
+//                return """
+//                cd \(process.currentDirectoryPath)
+//                \(
+//                    (process.environment ?? [:])
+//                        .sorted { $0.key < $1.key }
+//                        .map { "export \($0)=\($1.exportQuoted)" }
+//                        .joined(separator: "\n")
+//                )
+//                \(command)
+//                """
             }
         )
     }
