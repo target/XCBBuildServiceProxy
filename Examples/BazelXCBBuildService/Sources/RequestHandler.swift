@@ -191,6 +191,8 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
                 self.lastBazelBuildNumber -= 1
                 let buildNumber = self.lastBazelBuildNumber
                 
+                logger.info("Rappi - message.responseChannel: \(message.responseChannel) build command: \(message.buildRequest.buildCommand)")
+                
                 let buildContext = BuildContext(
                     sendResponse: context.sendResponse,
                     session: session,
