@@ -22,19 +22,26 @@ final class BazelClient: BazelBuildProcess {
     
     private var isRunning = false
     private var isCancelled = false
+    private let process: Process
     private let bepPath: String
     
     init() {
         //RAPPI: We use the same BEP path as XCBuildKit
         self.bepPath = "/tmp/bep.bep"
         print("BEP Path: \(self.bepPath)")
+        self.process = Process()
+        
+        // Automatically terminate process if our process exits
+        let selector = Selector(("setStartsNewProcessGroup:"))
+        if process.responds(to: selector) {
+            process.perform(selector, with: false as NSNumber)
+        }
     }
     
     func start(bepHandler: @escaping (BuildEventStream_BuildEvent) -> Void) throws {
-        guard !isRunning else {
+        guard !process.isRunning else {
             throw BazelBuildProcessError.alreadyStarted
         }
-        isRunning = true
         
         let fileManager = FileManager.default
 
@@ -109,12 +116,61 @@ final class BazelClient: BazelBuildProcess {
             }
         }
         
+        let stdout = Pipe()
+        let stderr = Pipe()
+        
+        processDispatchGroup.enter()
+        stdout.fileHandleForReading.readabilityHandler = { [processResultsQueue] handle in
+            let data = handle.availableData
+            guard !data.isEmpty else {
+                logger.trace("Received Bazel standard output EOF")
+                stdout.fileHandleForReading.readabilityHandler = nil
+                processDispatchGroup.leave()
+        
+                return
+            }
+            
+            processResultsQueue.async {
+                logger.trace("Received Bazel standard output: \(data)")
+            }
+        }
+        
+        processDispatchGroup.enter()
+        stderr.fileHandleForReading.readabilityHandler = { [processResultsQueue] handle in
+            let data = handle.availableData
+            guard !data.isEmpty else {
+                logger.trace("Received Bazel standard error EOF")
+                stderr.fileHandleForReading.readabilityHandler = nil
+                processDispatchGroup.leave()
+                return
+            }
+            
+            processResultsQueue.async {
+                logger.trace("Received Bazel standard error: \(data)")
+            }
+        }
+
+        process.standardOutput = stdout
+        process.standardError = stderr
+        
+        processDispatchGroup.enter()
+        process.terminationHandler = { process in
+            logger.debug("xcode.sh exited with status code: \(process.terminationStatus)")
+            processDispatchGroup.leave()
+        }
+        
+        
         processDispatchGroup.notify(queue: processResultsQueue) {
+            logger.info("\(self.isCancelled ? "Cancelled Bazel" : "Bazel") build exited with status code: \(self.process.terminationStatus)")
             isTerminated = true
         }
     }
     
     func stop() {
         isCancelled = true
+        if process.isRunning {
+            // Sends SIGTERM to the Bazel client. It will cleanup and exit.
+            process.terminate()
+        }
     }
 }
