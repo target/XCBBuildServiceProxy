@@ -149,34 +149,44 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
             handleBazelTargets(session: session) { baseEnvironment, bazelTargets, xcodeBuildVersion in
                 logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets.map { $1.name })")
                 
-                var desiredTargets: [BazelBuild.Target] = []
-                for target in message.buildRequest.configuredTargets {
-                    let guid = target.guid
-                    
-                    guard var bazelTarget = bazelTargets[guid] else {
-                        context.sendErrorResponse(
-                            "[\(session)] Parsed target not found for GUID “\(guid)”",
-                            request: request
-                        )
-                        return
-                    }
-                    
-                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
-                    guard !BazelBuild.shouldSkipTarget(bazelTarget, buildRequest: message.buildRequest) else {
-                        logger.info("Skipping target for Bazel build: \(bazelTarget.name)")
-                        continue
-                    }
-                    
-                    bazelTarget.parameters = target.parameters
-                    
-                    desiredTargets.append(bazelTarget)
-                }
+//                var desiredTargets: [BazelBuild.Target] = []
+//                for target in message.buildRequest.configuredTargets {
+//                    let guid = target.guid
+//
+//                    guard var bazelTarget = bazelTargets[guid] else {
+//                        //RAPPI: Don't send the error since only Bazel target will use it
+//                        continue
+////                        context.sendErrorResponse(
+////                            "[\(session)] Parsed target not found for GUID “\(guid)”",
+////                            request: request
+////                        )
+////                        return
+//                    }
+//
+//                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
+//                    guard !BazelBuild.shouldSkipTarget(bazelTarget, buildRequest: message.buildRequest) else {
+//                        logger.info("Skipping target for Bazel build: \(bazelTarget.name)")
+//                        continue
+//                    }
+//
+//                    bazelTarget.parameters = target.parameters
+//
+//                    desiredTargets.append(bazelTarget)
+//                }
                 
-                guard BazelBuild.shouldBuild(targets: desiredTargets, buildRequest: message.buildRequest) else {
-                    // There were no bazel based targets, so we will build normally
+                //RAPPI: Couldnt get Bazel target, continuing normal flow
+                guard bazelTargets.contains(where: { $0.value.name == "Bazel" }) else {
+//                guard !desiredTargets.isEmpty else {
                     context.forwardRequest()
                     return
                 }
+                
+                //RAPPI: Commented original implementation for sync purposes
+//                guard BazelBuild.shouldBuild(targets: desiredTargets, buildRequest: message.buildRequest) else {
+//                    // There were no bazel based targets, so we will build normally
+//                    context.forwardRequest()
+//                    return
+//                }
                 
                 self.lastBazelBuildNumber -= 1
                 let buildNumber = self.lastBazelBuildNumber
@@ -195,7 +205,7 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
                         xcodeBuildVersion: xcodeBuildVersion,
                         developerDir: baseEnvironment["DEVELOPER_DIR"]!,
                         buildRequest: message.buildRequest,
-                        targets: desiredTargets
+                        targets: Array(bazelTargets.values)
                     )
                     
                     self.sessionBazelBuilds[session] = build
