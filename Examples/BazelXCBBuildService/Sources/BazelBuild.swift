@@ -601,10 +601,18 @@ final class BazelBuild {
             },
             bepHandler: { [buildContext] event in
                 var progressMessage: String?
+                event.progress.stdout.split(separator: "\n").forEach { message in
+                    guard !message.isEmpty else { return }
+                    
+                    let message = String(message)
+                    logger.info("message out: \(message)")
+                }
+                
                 event.progress.stderr.split(separator: "\n").forEach { message in
                     guard !message.isEmpty else { return }
                     
                     let message = String(message)
+                    logger.info("message err: \(message)")
                     
                     if
                         let match = Self.progressRegex.firstMatch(
@@ -646,9 +654,13 @@ final class BazelBuild {
                     self.buildProgress = 100
                 }
                 
+                logger.info("Rappi - progressMessage: \(progressMessage) object: \(self)")
+                
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    buildContext.progressUpdate(message, completedTasks: "\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
+                    logger.info("Progress: \(self.buildProgress)")
+                    buildContext.progressUpdate(message, completedTasks: "\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress, showInLog: true)
+//                    buildContext.progressUpdate("Some", completedTasks: "1/10", percentComplete: 10, showInLog: true)
                 }
             },
             terminationHandler: { [buildContext, bazelTargets] exitCode, cancelled in
