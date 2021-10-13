@@ -56,7 +56,7 @@ final class BazelBuild {
                         let completedActionsRange = Range(match.range(at: 1), in: message),
                         let totalActionsRange = Range(match.range(at: 3), in: message)
                     {
-                        progressMessage = String(message[finalMessageRange])
+                        progressMessage = String(message[finalMessageRange]).components(separatedBy: ";").first
                         
                         let completedActionsString = message[completedActionsRange]
                             .replacingOccurrences(of: ",", with: "")
@@ -87,7 +87,7 @@ final class BazelBuild {
                 
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    buildContext.progressUpdate(message, completedTasks: "\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
+                    buildContext.progressUpdate("\(message) \(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
                 }
             }
         )
@@ -100,11 +100,11 @@ final class BazelBuild {
 
 
 private extension BuildContext where ResponsePayload == BazelXCBBuildServiceResponsePayload {
-    func progressUpdate(_ message: String, completedTasks: String, percentComplete: Double, showInLog: Bool = false) {
+    func progressUpdate(_ message: String, percentComplete: Double, showInLog: Bool = false) {
         sendResponseMessage(
             BuildOperationProgressUpdated(
+                targetName: nil,
                 statusMessage: message,
-                completedTasks: completedTasks,
                 percentComplete: percentComplete,
                 showInLog: showInLog
             )
