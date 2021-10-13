@@ -103,13 +103,9 @@ final class BazelBuild {
 
         default:
             self.buildProcess = BazelClient()
-            //RAPPI: Override of targets since we only have one
-            self.bazelTargets = targets.map { ($0, $0.name, "") }
-            self.nonBazelTargets = []
-            //RAPPI: Kept original implementation
-//            (self.bazelTargets, self.nonBazelTargets) = targets.bazelTargets(
-//                for: buildRequest.parameters.configuration
-//            )
+            (self.bazelTargets, self.nonBazelTargets) = targets.bazelTargets(
+                for: buildRequest.parameters.configuration
+            )
         }
     }
     
@@ -424,11 +420,10 @@ final class BazelBuild {
                 let actualTargetPatterns = actualLabels.joined(separator: " ")
                 
                 buildContext.planningStarted()
-                buildContext.progressUpdate("Building with Bazel", completedTasks: "1/1", percentComplete: -1.0, showInLog: true)
+                buildContext.progressUpdate("Building with Bazel", percentComplete: -1.0, showInLog: true)
                 if !bazelTargets.isEmpty {
                     buildContext.progressUpdate(
-                        "Preparing build for: \(actualTargetPatterns)",
-                        completedTasks: "1/1",
+                        "Preparing build for \(actualLabels.count == 1 ? "label" : "labels"): \(actualTargetPatterns)",
                         percentComplete: -1.0,
                         showInLog: true
                     )
@@ -451,7 +446,6 @@ final class BazelBuild {
                     if uniquedActions {
                         buildContext.progressUpdate(
                             "Actually building \(uniqueActualLabels.count == 1 ? "label" : "labels"): \(uniqueActualLabels.joined(separator: " "))",
-                            completedTasks: "1/1",
                             percentComplete: -1.0,
                             showInLog: true
                         )
@@ -478,26 +472,23 @@ final class BazelBuild {
                     let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
                     let configuration = parameters.configuration
 
-                    let commandLineString = ""
-                    //RAPPI: No need to run bazel shell since we are calling it in Xcode
+                    let commandLineString = startProcessHandler(
+                        uniqueBazelTargets.map(\.xcodeLabel).joined(separator: " "),
+                        workingDirectory,
+                        installTarget.flatMap {
+                            Self.generateEnvironment(
+                                baseEnvironment: baseEnvironment,
+                                buildRequest: buildRequest,
+                                xcodeBuildVersion: xcodeBuildVersion,
+                                developerDir: developerDir,
+                                platformDir: platformDir,
+                                platformDeveloperDir: platformDeveloperDir,
+                                sdkRoot: sdkRoot,
+                                target: $0
+                            )
+                        } ?? baseEnvironment
+                    )
                     
-//                    let commandLineString = startProcessHandler(
-//                        uniqueBazelTargets.map(\.xcodeLabel).joined(separator: " "),
-//                        workingDirectory,
-//                        installTarget.flatMap {
-//                            Self.generateEnvironment(
-//                                baseEnvironment: baseEnvironment,
-//                                buildRequest: buildRequest,
-//                                xcodeBuildVersion: xcodeBuildVersion,
-//                                developerDir: developerDir,
-//                                platformDir: platformDir,
-//                                platformDeveloperDir: platformDeveloperDir,
-//                                sdkRoot: sdkRoot,
-//                                target: $0
-//                            )
-//                        } ?? baseEnvironment
-//                    )
-
                     if let installTarget = installTarget {
                         buildContext.targetStarted(
                             id: 0,
@@ -530,7 +521,6 @@ final class BazelBuild {
                 if bazelTargets.count > 1 {
                     buildContext.progressUpdate(
                         "Determining unique targets",
-                        completedTasks: "1/1",
                         percentComplete: -1.0,
                         showInLog: true
                     )
@@ -601,18 +591,10 @@ final class BazelBuild {
             },
             bepHandler: { [buildContext] event in
                 var progressMessage: String?
-                event.progress.stdout.split(separator: "\n").forEach { message in
-                    guard !message.isEmpty else { return }
-                    
-                    let message = String(message)
-                    logger.info("message out: \(message)")
-                }
-                
                 event.progress.stderr.split(separator: "\n").forEach { message in
                     guard !message.isEmpty else { return }
                     
                     let message = String(message)
-                    logger.info("message err: \(message)")
                     
                     if
                         let match = Self.progressRegex.firstMatch(
@@ -654,13 +636,9 @@ final class BazelBuild {
                     self.buildProgress = 100
                 }
                 
-                logger.info("Rappi - progressMessage: \(progressMessage) object: \(self)")
-                
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    logger.info("Progress: \(self.buildProgress)")
-                    buildContext.progressUpdate(message, completedTasks: "\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress, showInLog: true)
-//                    buildContext.progressUpdate("Some", completedTasks: "1/10", percentComplete: 10, showInLog: true)
+                    buildContext.progressUpdate("\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
                 }
             },
             terminationHandler: { [buildContext, bazelTargets] exitCode, cancelled in
@@ -709,11 +687,11 @@ private extension BuildContext where ResponsePayload == BazelXCBBuildServiceResp
         sendResponseMessage(BuildOperationReportPathMap())
     }
     
-    func progressUpdate(_ message: String, completedTasks: String, percentComplete: Double, showInLog: Bool = false) {
+    func progressUpdate(_ message: String, percentComplete: Double, showInLog: Bool = false) {
         sendResponseMessage(
             BuildOperationProgressUpdated(
+                targetName: nil,
                 statusMessage: message,
-                completedTasks: completedTasks,
                 percentComplete: percentComplete,
                 showInLog: showInLog
             )

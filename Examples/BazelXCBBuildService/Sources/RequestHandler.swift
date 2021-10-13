@@ -147,15 +147,13 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
             sessionBazelBuilds[session]?.cancel()
             sessionBazelBuilds[session] = nil
             
-            guard message.buildRequest.buildCommand.command == .build else { return }
-            
             handleBazelTargets(session: session) { baseEnvironment, bazelTargets, xcodeBuildVersion in
                 logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets.map { $1.name })")
                 
                 var desiredTargets: [BazelBuild.Target] = []
                 for target in message.buildRequest.configuredTargets {
                     let guid = target.guid
-
+                    
                     guard var bazelTarget = bazelTargets[guid] else {
                         context.sendErrorResponse(
                             "[\(session)] Parsed target not found for GUID “\(guid)”",
@@ -163,39 +161,26 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
                         )
                         return
                     }
-
-                    //RAPPI: Commented for sync purposes
-                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
-//                    guard !BazelBuild.shouldSkipTarget(bazelTarget, buildRequest: message.buildRequest) else {
-//                        logger.info("Skipping target for Bazel build: \(bazelTarget.name)")
-//                        continue
-//                    }
                     
-                    //RAPPI: Here we will filter Grability target
-                    guard bazelTarget.name == "Grability" else { continue }
-
+                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
+                    guard !BazelBuild.shouldSkipTarget(bazelTarget, buildRequest: message.buildRequest) else {
+                        logger.info("Skipping target for Bazel build: \(bazelTarget.name)")
+                        continue
+                    }
+                    
                     bazelTarget.parameters = target.parameters
-
+                    
                     desiredTargets.append(bazelTarget)
                 }
                 
-                //RAPPI: At this point we will continue only if Bazel target is being compiled
-                guard !desiredTargets.isEmpty else {
+                guard BazelBuild.shouldBuild(targets: desiredTargets, buildRequest: message.buildRequest) else {
+                    // There were no bazel based targets, so we will build normally
                     context.forwardRequest()
                     return
                 }
                 
-                //RAPPI: Commented original implementation for sync purposes
-//                guard BazelBuild.shouldBuild(targets: desiredTargets, buildRequest: message.buildRequest) else {
-//                    // There were no bazel based targets, so we will build normally
-//                    context.forwardRequest()
-//                    return
-//                }
-                
                 self.lastBazelBuildNumber -= 1
                 let buildNumber = self.lastBazelBuildNumber
-                
-                logger.info("Rappi - message.responseChannel: \(message.responseChannel) build command: \(message.buildRequest.buildCommand)")
                 
                 let buildContext = BuildContext(
                     sendResponse: context.sendResponse,
@@ -211,7 +196,7 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
                         xcodeBuildVersion: xcodeBuildVersion,
                         developerDir: baseEnvironment["DEVELOPER_DIR"]!,
                         buildRequest: message.buildRequest,
-                        targets: Array(bazelTargets.values)
+                        targets: desiredTargets
                     )
                     
                     self.sessionBazelBuilds[session] = build
@@ -305,26 +290,20 @@ extension RequestHandler {
         context: Context,
         workspacePIFFuture: EventLoopFuture<WorkspacePIF>
     ) -> EventLoopFuture<Bool> {
-        //RAPPI: By default every project will be enabled, it will be filtered by the targets instead
-        let promise = context.eventLoop.makePromise(of: Bool.self)
-        promise.succeed(true)
-        return promise.futureResult
-        //RAPPI: Keeped original solution for merge/sync facilities
-
-//        return workspacePIFFuture.flatMap { [fileIO] pif in
-//            let path = "\(pif.path)/xcshareddata/BazelXCBBuildServiceSettings.plist"
-//            return fileIO.openFile(path: path, eventLoop: context.eventLoop)
-//                .map { fileHandle, _ in
-//                    // Close the file, we just wanted to ensure it exists for now
-//                    // Later we might read the contents
-//                    try? fileHandle.close()
-//                    logger.debug("“\(path)” found. Building with Bazel.")
-//                    return true
-//                }.recover { error in
-//                    logger.debug("“\(path)” could not be opened (\(error)). Not building with Bazel.")
-//                    return false
-//                }
-//        }
+        return workspacePIFFuture.flatMap { [fileIO] pif in
+            let path = "\(pif.path)/xcshareddata/BazelXCBBuildServiceSettings.plist"
+            return fileIO.openFile(path: path, eventLoop: context.eventLoop)
+                .map { fileHandle, _ in
+                    // Close the file, we just wanted to ensure it exists for now
+                    // Later we might read the contents
+                    try? fileHandle.close()
+                    logger.debug("“\(path)” found. Building with Bazel.")
+                    return true
+                }.recover { error in
+                    logger.debug("“\(path)” could not be opened (\(error)). Not building with Bazel.")
+                    return false
+                }
+        }
     }
     
     /// - Returns: parsed projects or an error, if we should build with Bazel, or `nil` if we shouldn't.

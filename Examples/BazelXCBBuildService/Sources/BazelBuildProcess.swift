@@ -43,11 +43,9 @@ final class BazelClient: BazelBuildProcess {
     private let bepPath: String
     
     init() {
-        //RAPPI: We use the same BEP path as XCBuildKit since it was first implemented in Rappi
-        self.bepPath = "/tmp/bep.bep"
-//        self.bepPath = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-//            .appendingPathComponent(ProcessInfo().globallyUniqueString).path
-        print("BEP Path: \(self.bepPath)")
+        self.bepPath = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(ProcessInfo().globallyUniqueString).path
+        
         self.process = Process()
         
         // Automatically terminate process if our process exits
@@ -202,46 +200,41 @@ final class BazelClient: BazelBuildProcess {
         
         startedHandler(
             { [uniqueTargetsProcess] targetPatterns, workingDirectory, environment, finishStartup in
-                //RAPPI: Our unique target is Bazel dummy target
-                finishStartup(.success(["Bazel"]))
-                //RAPPI: Commented for sync purposes
-//                uniqueTargetsProcess.start(
-//                    targetPatterns: targetPatterns,
-//                    workingDirectory: workingDirectory,
-//                    environment: environment,
-//                    errorOutputHandler: outputHandler,
-//                    uniqueBuildLabelsHandler: finishStartup
-//                )
+                uniqueTargetsProcess.start(
+                    targetPatterns: targetPatterns,
+                    workingDirectory: workingDirectory,
+                    environment: environment,
+                    errorOutputHandler: outputHandler,
+                    uniqueBuildLabelsHandler: finishStartup
+                )
             },
             { [process, bepPath] finalTargetPatterns, workingDirectory, environment in
-                //RAPPI: We handle our own Bazel build process
-                return ""
-//                var environment = environment
-//                environment["NBS_BEP_PATH"] = bepPath
-//
-//                process.launchPath = "/bin/bash"
-//                process.currentDirectoryPath = workingDirectory
-//                process.environment = environment
-//                process.arguments = [
-//                    "-c",
-//                    "bazel/xcode.sh nbs \(finalTargetPatterns)",
-//                ]
-//
-//                let command = "\(process.launchPath!) \(process.arguments!.joined(separator: " "))"
-//                logger.info("Starting Bazel with command: \(command)")
-//
-//                process.launch()
-//
-//                return """
-//                cd \(process.currentDirectoryPath)
-//                \(
-//                    (process.environment ?? [:])
-//                        .sorted { $0.key < $1.key }
-//                        .map { "export \($0)=\($1.exportQuoted)" }
-//                        .joined(separator: "\n")
-//                )
-//                \(command)
-//                """
+                var environment = environment
+                environment["NBS_BEP_PATH"] = bepPath
+
+                process.launchPath = "/bin/bash"
+                process.currentDirectoryPath = workingDirectory
+                process.environment = environment
+                process.arguments = [
+                    "-c",
+                    "bazel/xcode.sh nbs \(finalTargetPatterns)",
+                ]
+
+                let command = "\(process.launchPath!) \(process.arguments!.joined(separator: " "))"
+                logger.info("Starting Bazel with command: \(command)")
+
+                process.launch()
+
+                return """
+                cd \(process.currentDirectoryPath)
+                \(
+                    (process.environment ?? [:])
+                        .sorted { $0.key < $1.key }
+                        .map { "export \($0)=\($1.exportQuoted)" }
+                        .joined(separator: "\n")
+                )
+                \(command)
+                """
             }
         )
     }
