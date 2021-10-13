@@ -478,23 +478,26 @@ final class BazelBuild {
                     let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
                     let configuration = parameters.configuration
 
-                    let commandLineString = startProcessHandler(
-                        uniqueBazelTargets.map(\.xcodeLabel).joined(separator: " "),
-                        workingDirectory,
-                        installTarget.flatMap {
-                            Self.generateEnvironment(
-                                baseEnvironment: baseEnvironment,
-                                buildRequest: buildRequest,
-                                xcodeBuildVersion: xcodeBuildVersion,
-                                developerDir: developerDir,
-                                platformDir: platformDir,
-                                platformDeveloperDir: platformDeveloperDir,
-                                sdkRoot: sdkRoot,
-                                target: $0
-                            )
-                        } ?? baseEnvironment
-                    )
+                    let commandLineString = ""
+                    //RAPPI: No need to run bazel shell since we are calling it in Xcode
                     
+//                    let commandLineString = startProcessHandler(
+//                        uniqueBazelTargets.map(\.xcodeLabel).joined(separator: " "),
+//                        workingDirectory,
+//                        installTarget.flatMap {
+//                            Self.generateEnvironment(
+//                                baseEnvironment: baseEnvironment,
+//                                buildRequest: buildRequest,
+//                                xcodeBuildVersion: xcodeBuildVersion,
+//                                developerDir: developerDir,
+//                                platformDir: platformDir,
+//                                platformDeveloperDir: platformDeveloperDir,
+//                                sdkRoot: sdkRoot,
+//                                target: $0
+//                            )
+//                        } ?? baseEnvironment
+//                    )
+
                     if let installTarget = installTarget {
                         buildContext.targetStarted(
                             id: 0,
