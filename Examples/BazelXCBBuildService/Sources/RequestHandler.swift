@@ -152,34 +152,35 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
             handleBazelTargets(session: session) { baseEnvironment, bazelTargets, xcodeBuildVersion in
                 logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets.map { $1.name })")
                 
-//                var desiredTargets: [BazelBuild.Target] = []
-//                for target in message.buildRequest.configuredTargets {
-//                    let guid = target.guid
-//
-//                    guard var bazelTarget = bazelTargets[guid] else {
-//                        //RAPPI: Don't send the error since only Bazel target will use it
-//                        continue
-////                        context.sendErrorResponse(
-////                            "[\(session)] Parsed target not found for GUID “\(guid)”",
-////                            request: request
-////                        )
-////                        return
-//                    }
-//
-//                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
+                var desiredTargets: [BazelBuild.Target] = []
+                for target in message.buildRequest.configuredTargets {
+                    let guid = target.guid
+
+                    guard var bazelTarget = bazelTargets[guid] else {
+                        context.sendErrorResponse(
+                            "[\(session)] Parsed target not found for GUID “\(guid)”",
+                            request: request
+                        )
+                        return
+                    }
+
+                    //RAPPI: Commented for sync purposes
+                    // TODO: Do this check after uniquing targets, to allow excluding of "Testing" modules as well
 //                    guard !BazelBuild.shouldSkipTarget(bazelTarget, buildRequest: message.buildRequest) else {
 //                        logger.info("Skipping target for Bazel build: \(bazelTarget.name)")
 //                        continue
 //                    }
-//
-//                    bazelTarget.parameters = target.parameters
-//
-//                    desiredTargets.append(bazelTarget)
-//                }
+                    
+                    //RAPPI: Here we will filter bazel target
+                    guard bazelTarget.name == "Bazel" else { continue }
+
+                    bazelTarget.parameters = target.parameters
+
+                    desiredTargets.append(bazelTarget)
+                }
                 
-                //RAPPI: Couldnt get Bazel target, continuing normal flow
-                guard bazelTargets.contains(where: { $0.value.name == "Bazel" }) else {
-//                guard !desiredTargets.isEmpty else {
+                //RAPPI: At this point we will continue only if Bazel target is being compiled
+                guard !desiredTargets.isEmpty else {
                     context.forwardRequest()
                     return
                 }
@@ -363,10 +364,7 @@ extension RequestHandler {
             }.flatMap { futures in
                 EventLoopFuture.reduce(into: [:], futures, on: context.eventLoop) { targetMappings, projectTargets in
                     for case let projectTarget in projectTargets {
-                        //RAPPI: We only need Bazel target since everything is wrapped in it
-                        if projectTarget.name == "Bazel" {
-                            targetMappings[projectTarget.xcodeGUID] = projectTarget
-                        }
+                        targetMappings[projectTarget.xcodeGUID] = projectTarget
                     }
                 }
             }.map { .some($0) }

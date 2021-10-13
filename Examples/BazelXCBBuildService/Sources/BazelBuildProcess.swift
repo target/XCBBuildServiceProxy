@@ -202,13 +202,16 @@ final class BazelClient: BazelBuildProcess {
         
         startedHandler(
             { [uniqueTargetsProcess] targetPatterns, workingDirectory, environment, finishStartup in
-                uniqueTargetsProcess.start(
-                    targetPatterns: targetPatterns,
-                    workingDirectory: workingDirectory,
-                    environment: environment,
-                    errorOutputHandler: outputHandler,
-                    uniqueBuildLabelsHandler: finishStartup
-                )
+                //RAPPI: Our unique target is Bazel dummy target
+                finishStartup(.success(["Bazel"]))
+                //RAPPI: Commented for sync purposes
+//                uniqueTargetsProcess.start(
+//                    targetPatterns: targetPatterns,
+//                    workingDirectory: workingDirectory,
+//                    environment: environment,
+//                    errorOutputHandler: outputHandler,
+//                    uniqueBuildLabelsHandler: finishStartup
+//                )
             },
             { [process, bepPath] finalTargetPatterns, workingDirectory, environment in
                 //RAPPI: We handle our own Bazel build process
