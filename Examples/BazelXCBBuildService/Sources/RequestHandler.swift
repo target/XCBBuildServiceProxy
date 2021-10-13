@@ -147,7 +147,7 @@ final class RequestHandler: HybridXCBBuildServiceRequestHandler {
             sessionBazelBuilds[session] = nil
             
             handleBazelTargets(session: session) { baseEnvironment, bazelTargets, xcodeBuildVersion in
-                logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets)")
+                logger.trace("Parsed targets for BazelXCBBuildService: \(bazelTargets.map { $1.name })")
                 
                 var desiredTargets: [BazelBuild.Target] = []
                 for target in message.buildRequest.configuredTargets {
