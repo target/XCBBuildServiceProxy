@@ -607,7 +607,7 @@ final class BazelBuild {
                         let completedActionsRange = Range(match.range(at: 1), in: message),
                         let totalActionsRange = Range(match.range(at: 3), in: message)
                     {
-                        progressMessage = String(message[finalMessageRange])
+                        progressMessage = String(message[finalMessageRange]).components(separatedBy: ";").first
                         
                         let completedActionsString = message[completedActionsRange]
                             .replacingOccurrences(of: ",", with: "")
@@ -638,7 +638,7 @@ final class BazelBuild {
                 
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    buildContext.progressUpdate("\(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
+                    buildContext.progressUpdate("\(message) \(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
                 }
             },
             terminationHandler: { [buildContext, bazelTargets] exitCode, cancelled in
