@@ -29,7 +29,7 @@ let package = Package(
                 "SwiftProtobuf",
                 "XCBBuildServiceProxy",
                 "XCBProtocol",
-                "XCBProtocol_13_0",
+                "XCBProtocol_12_0",
             ],
             path: "Sources"
         ),
