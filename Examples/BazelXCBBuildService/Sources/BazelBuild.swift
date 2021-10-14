@@ -1,7 +1,6 @@
 import Foundation
 import XCBBuildServiceProxy
 import XCBProtocol
-@_exported import XCBProtocol_13_0
 
 // swiftformat:disable braces
 
@@ -50,8 +49,6 @@ final class BazelBuild {
     
     private var buildProgress: Double = -1.0
     private var initialActionCount: Int = 0
-    private var totalActions: Int = 0
-    private var completedActions: Int = 0
     
     private let bazelTargets: [(target: Target, label: String, xcodeLabel: String)]
     private let nonBazelTargets: [Target]
@@ -92,7 +89,7 @@ final class BazelBuild {
         
         self.buildContext = buildContext
 
-        switch buildRequest.buildCommand.command {
+        switch buildRequest.buildCommand {
         case .cleanBuildFolder:
             self.buildProcess = CleanBuildFolderProcess(
                 buildProductsPath: buildRequest.parameters.arenaInfo.buildProductsPath,
@@ -117,7 +114,7 @@ final class BazelBuild {
     /// - Returns: `true` if the target shouldn't be build for the `buildRequest`.
     ///   e.g. test targets are set in Xcode 11.3 for SwiftUI previews, even though we don't need to build them.
     static func shouldSkipTarget(_ target: Target, buildRequest: BuildRequest) -> Bool {
-        guard buildRequest.buildCommand.command == .preview else { return false }
+        guard buildRequest.buildCommand == .preview else { return false }
 
         return target.name.hasSuffix("Testing")
             || target.name == "TestingCore"
@@ -149,7 +146,7 @@ final class BazelBuild {
         let developerDir = baseEnvironment["DEVELOPER_DIR"]!
         let platformDir = "\(developerDir)/Platforms/\(parameters.activeRunDestination.platform.directoryName)"
         let platformDeveloperDir = "\(platformDir)/Developer"
-        let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
+        let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant.directoryName)"
 
         let environment = Self.generateEnvironment(
             baseEnvironment: baseEnvironment,
@@ -469,7 +466,7 @@ final class BazelBuild {
                     let parameters = installTarget?.parameters ?? buildRequest.parameters
                     let platformDir = "\(developerDir)/Platforms/\(parameters.activeRunDestination.platform.directoryName)"
                     let platformDeveloperDir = "\(platformDir)/Developer"
-                    let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant)" //TODO: .directoryName
+                    let sdkRoot = "\(platformDeveloperDir)/SDKs/\(parameters.activeRunDestination.sdkVariant.directoryName)"
                     let configuration = parameters.configuration
 
                     let commandLineString = startProcessHandler(
@@ -607,7 +604,7 @@ final class BazelBuild {
                         let completedActionsRange = Range(match.range(at: 1), in: message),
                         let totalActionsRange = Range(match.range(at: 3), in: message)
                     {
-                        progressMessage = String(message[finalMessageRange]).components(separatedBy: ";").first
+                        progressMessage = String(message[finalMessageRange])
                         
                         let completedActionsString = message[completedActionsRange]
                             .replacingOccurrences(of: ",", with: "")
@@ -618,8 +615,6 @@ final class BazelBuild {
                             let completedActions = Int(completedActionsString),
                             let totalActions = Int(totalActionsString)
                         {
-                            self.totalActions = totalActions
-                            self.completedActions = completedActions
                             if self.initialActionCount == 0, completedActions > 0, completedActions != totalActions {
                                 self.initialActionCount = completedActions
                             }
@@ -638,7 +633,7 @@ final class BazelBuild {
                 
                 // Take the last message in the case of multiple lines, as well as the most recent `buildProgress`
                 if let message = progressMessage {
-                    buildContext.progressUpdate("\(message) \(self.completedActions)/\(self.totalActions)", percentComplete: self.buildProgress)
+                    buildContext.progressUpdate(message, percentComplete: self.buildProgress)
                 }
             },
             terminationHandler: { [buildContext, bazelTargets] exitCode, cancelled in
@@ -815,8 +810,7 @@ private extension BuildOperationProjectInfo {
         self.init(
             name: parsedProject.name,
             path: parsedProject.path,
-            isPackage: parsedProject.isPackage,
-            isNameUniqueInWorkspace: true
+            isPackage: parsedProject.isPackage
         )
     }
 }

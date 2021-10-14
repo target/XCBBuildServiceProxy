@@ -16,7 +16,7 @@ swift_library(
         "@com_github_apple_swift_nio//:NIO",
         "@com_github_target_xcbbuildserviceproxy//:XCBBuildServiceProxy",
         "@com_github_target_xcbbuildserviceproxy//:XCBProtocol",
-        "@com_github_target_xcbbuildserviceproxy//:XCBProtocol_13_0",
+        "@com_github_target_xcbbuildserviceproxy//:XCBProtocol_12_0",
     ],
 )
 
