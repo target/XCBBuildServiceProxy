@@ -22,9 +22,9 @@ def xcbbuildserviceproxy_dependencies():
         http_archive,
         build_file = "@com_github_target_xcbbuildserviceproxy//:external/com_github_apple_swift_nio.BUILD",
         name = "com_github_apple_swift_nio",
-        sha256 = "4a654952046a46ad8f09d359e6c02e7fa04ab09f492ae35f5d6d7c769f3f008a",
-        strip_prefix = "swift-nio-2.33.0",
+        sha256 = "40b115e77e8af3ffbe84be344c30c0964763e318e1d3dfe0a80da0e2ae17d614",
+        strip_prefix = "swift-nio-2.30.0",
         urls = [
-            "https://github.com/apple/swift-nio/archive/2.33.0.tar.gz",
+            "https://github.com/apple/swift-nio/archive/2.30.0.tar.gz",
         ],
     )

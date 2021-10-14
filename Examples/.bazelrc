@@ -1,2 +1,0 @@
-build --use_top_level_targets_for_symlinks
-build --macos_cpus=arm64,x86_64
