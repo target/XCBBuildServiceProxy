@@ -9,8 +9,8 @@ let package = Package(
         .executable(name: "BazelXCBBuildService", targets: ["BazelXCBBuildService"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.17.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2"),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.33.0"),
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.9.0"),
         // XCBBuildServiceProxy lives up two levels from here
         .package(path: "../../"),

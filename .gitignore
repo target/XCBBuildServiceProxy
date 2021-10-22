@@ -2,3 +2,4 @@
 /bazel-*
 /Examples/bazel-*
 /.vscode
+.build
