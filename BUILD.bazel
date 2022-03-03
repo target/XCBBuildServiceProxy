@@ -40,3 +40,9 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "XCBProtocol_13_3",
+    actual = "//Sources/XCBProtocol_13_3",
+    visibility = ["//visibility:public"],
+)
+
