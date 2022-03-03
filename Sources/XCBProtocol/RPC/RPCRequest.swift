@@ -1,9 +1,12 @@
 import Foundation
 import MessagePack
 import NIO
+import os
 
 /// An RPC request sent from Xcode.
-public struct RPCRequest<Payload: RequestPayload> {
+public struct RPCRequest<Payload: RequestPayload>: CustomStringConvertible {
+    public var description: String { "Channel: \(channel) - Payload: \(payload) "}
+    
     public let channel: UInt64
     public let payload: Payload
     
@@ -23,7 +26,7 @@ public final class RPCRequestDecoder<Payload: RequestPayload>: ChannelInboundHan
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let request = RPCRequest<Payload>(unwrapInboundIn(data))
         
-        logger.trace("RPCRequest decoded: \(request)")
+        os_log("RPCRequest decoded: \(request)")
         
         context.fireChannelRead(wrapInboundOut(request))
     }
@@ -35,7 +38,8 @@ extension RPCRequest {
         do {
             payload = try packet.body.parseObject(indexPath: IndexPath())
         } catch {
-            logger.error("Failed parsing RequestPayload received from Xcode: \(error)\nValues: \(packet.body)")
+            let errorStr = "\(error)"
+            os_log("Failed parsing RequestPayload received from Xcode: \(errorStr)\nValues: \(packet.body)")
             
             payload = .unknownRequest(values: packet.body)
         }

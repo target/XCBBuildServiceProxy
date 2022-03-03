@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import NIO
+import os
 import XCBProtocol
 
 // swiftlint:disable opening_brace
@@ -40,7 +41,7 @@ final class HybridRPCRequestHandler<RequestHandler: HybridXCBBuildServiceRequest
         // Here we are receiving a request from Xcode
         let request = unwrapInboundIn(data)
         
-        logger.debug("Received RPCRequest from Xcode: \(request)")
+        os_log("Received RPCRequest from Xcode: \(request)")
         
         // Start the proxied XCBBuildService if needed
         if let xcodePath = request.payload.createSessionXcodePath {
@@ -73,12 +74,12 @@ final class HybridRPCRequestHandler<RequestHandler: HybridXCBBuildServiceRequest
         
         // Return a result for `sendRequest()`
         if let promise = responsePromises.removeValue(forKey: response.channel) {
-            logger.debug("Received RPCResponse from XCBBuildService: \(response)")
+            os_log("Received RPCResponse from XCBBuildService: \(response)")
             promise.succeed(response)
         } else {
             // Unknown channel, because of event stream or forwarded request
             // Just forward it back to Xcode
-            logger.debug("Received RPCResponse from XCBBuildService and sending to Xcode: \(response)")
+            os_log("Received RPCResponse from XCBBuildService and sending to Xcode: \(response)")
             context.writeAndFlush(data, promise: promise)
         }
     }
@@ -88,7 +89,7 @@ final class HybridRPCRequestHandler<RequestHandler: HybridXCBBuildServiceRequest
             responsePromises[request.channel] = promise
         }
         
-        logger.debug("Sending RPCRequest to XCBBuildService: \(request)")
+        os_log("Sending RPCRequest to XCBBuildService: \(request)")
         
         xcbBuildService.channel.writeAndFlush(request, promise: nil)
     }
@@ -102,7 +103,7 @@ final class HybridRPCRequestHandler<RequestHandler: HybridXCBBuildServiceRequest
     }
     
     private func sendResponse(_ response: Response, context: ChannelHandlerContext) {
-        logger.debug("Sending RPCResponse to Xcode: \(response)")
+        os_log("Sending RPCResponse to Xcode: \(response)")
         context.writeAndFlush(wrapOutboundOut(response), promise: nil)
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import NIO
+import os
 import XCBProtocol
 
 // swiftformat:disable braces
@@ -42,12 +43,12 @@ final class XCBBuildService {
         guard !process.isRunning else {
             if process.launchPath != processPath {
                 let launchPath = process.launchPath ?? ""
-                logger.error("XCBBuildService start request for “\(processPath)” but it’s already running at “\(launchPath)”")
+                os_log("XCBBuildService start request for “\(processPath)” but it’s already running at “\(launchPath)”")
             }
             return
         }
         
-        logger.info("Starting XCBBuildService at “\(processPath)”")
+        os_log("Starting XCBBuildService at “\(processPath)”")
         
         process.launchPath = processPath
         process.launch()
@@ -96,21 +97,21 @@ final class XCBBuildServiceBootstrap<RequestPayload, ResponsePayload> where
         stderr.fileHandleForReading.readabilityHandler = { handle in
             let data = handle.availableData
             guard !data.isEmpty else {
-                logger.trace("Received XCBBuildService standard error EOF")
+                os_log("Received XCBBuildService standard error EOF")
                 stderr.fileHandleForReading.readabilityHandler = nil
                 return
             }
             
             if let output = String(data: data, encoding: .utf8) {
-                logger.info("XCBBuildService stderr: \(output)")
+                os_log("XCBBuildService stderr: \(output)")
             }
         }
         
         process.terminationHandler = { process in
-            logger.debug("XCBBuildService exited with status code: \(process.terminationStatus)")
+            os_log("XCBBuildService exited with status code: \(process.terminationStatus)")
         }
         
-        logger.info("Prepping XCBBuildService")
+        os_log("Prepping XCBBuildService")
         
         let channelFuture = bootstrap.withPipes(
             inputDescriptor: stdout.fileHandleForReading.fileDescriptor,
@@ -125,7 +126,7 @@ final class XCBBuildServiceBootstrap<RequestPayload, ResponsePayload> where
             
         channelFuture
             .whenSuccess { _ in
-                logger.info("XCBBuildService prepped")
+                os_log("XCBBuildService prepped")
             }
         
         return channelFuture.map { XCBBuildService(process: process, channel: $0) }

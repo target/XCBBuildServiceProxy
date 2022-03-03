@@ -1,11 +1,14 @@
 import Foundation
 import MessagePack
 import NIO
+import os
 
 /// An intermediate representation of an RPC message.
 ///
 /// Bytes are decoded to form an `RPCPacket`. `RPCPacket`s are decoded to form `RPCRequest` and `RPCResponse` instances.
-public struct RPCPacket {
+public struct RPCPacket: CustomStringConvertible {
+    public var description: String { "Channel: \(channel) - Body: \(body) "}
+    
     /// The RPC channel that is being communicated on.
     ///
     /// A response will come back on the same channel as a request.
@@ -37,7 +40,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
     
     public func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
         if let packet = try findNextPacket(buffer: &buffer) {
-            logger.trace("[\(label)] Decoded RPCPacket: \(packet)")
+            os_log("[\(self.label)] Decoded RPCPacket: \(packet)")
             context.fireChannelRead(wrapInboundOut(packet))
             return .continue
         } else {
@@ -56,7 +59,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
         // Reset header state since we have read the full packet now
         decodedHeader = nil
         
-        logger.trace("[\(label)] Decoded RPCPacket payload: \(payload)")
+        os_log("[\(self.label)] Decoded RPCPacket payload: \(payload)")
         
         let body = try MessagePackValue.unpackAll(Data(payload))
         
@@ -85,7 +88,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
     }
     
     public func encode(data packet: RPCPacket, out: inout ByteBuffer) throws {
-        logger.trace("[\(label)] Encoding RPCPacket: \(packet)")
+        os_log("[\(self.label)] Encoding RPCPacket: \(packet)")
         
         let body = packet.body.reduce(into: Data()) { body, element in body.append(element.pack()) }
         

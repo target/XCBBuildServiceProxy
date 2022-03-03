@@ -1,9 +1,12 @@
 import Foundation
 import MessagePack
 import NIO
+import os
 
 /// An RPC response sent to Xcode.
-public struct RPCResponse<Payload: ResponsePayload> {
+public struct RPCResponse<Payload: ResponsePayload>: CustomStringConvertible {
+    public var description: String { "Channel: \(channel) - Payload: \(payload) "}
+    
     public let channel: UInt64
     public let payload: Payload
     
@@ -39,7 +42,7 @@ public final class RPCResponseDecoder<Payload: ResponsePayload>: ChannelInboundH
         let packet = unwrapInboundIn(data)
         let response = RPCResponse<Payload>(packet)
         
-        logger.trace("RPCResponse decoded: \(response)")
+        os_log("RPCResponse decoded: \(response)")
         
         context.fireChannelRead(wrapInboundOut(response))
     }
@@ -51,7 +54,8 @@ extension RPCResponse {
         do {
             payload = try packet.body.parseObject(indexPath: IndexPath())
         } catch {
-            logger.error("Failed parsing ResponsePayload received from XCBBuildService: \(error)\nValues: \(packet.body)")
+            let errorStr = "\(error)"
+            os_log("Failed parsing ResponsePayload received from XCBBuildService: \(errorStr)\nValues: \(packet.body)")
             
             payload = .unknownResponse(values: packet.body)
         }
