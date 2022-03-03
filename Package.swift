@@ -1,10 +1,10 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
-    name: "BazelXCBBuildServiceProxy",
-    platforms: [.macOS(.v10_14)],
+    name: "XCBBuildServiceProxy",
+    platforms: [.macOS(.v11)],
     products: [
         .library(name: "XCBProtocol", targets: ["XCBProtocol"]),
         .library(name: "XCBProtocol_11_3", targets: ["XCBProtocol_11_3"]),
@@ -35,9 +35,9 @@ let package = Package(
         .target(
             name: "XCBProtocol",
             dependencies: [
-                "Logging",
+                .product(name: "Logging", package: "swift-log"),
                 "MessagePack",
-                "NIO",
+                .product(name: "NIO", package: "swift-nio"),
             ],
             exclude: [
                 "BUILD.bazel"
@@ -96,8 +96,8 @@ let package = Package(
         .target(
             name: "XCBBuildServiceProxy",
             dependencies: [
-                "Logging",
-                "NIO",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "NIO", package: "swift-nio"),
                 "XCBProtocol",
             ],
             exclude: [
