@@ -12,6 +12,7 @@ let package = Package(
         .library(name: "XCBProtocol_12_0", targets: ["XCBProtocol_12_0"]),
         .library(name: "XCBProtocol_12_5", targets: ["XCBProtocol_12_5"]),
         .library(name: "XCBProtocol_13_0", targets: ["XCBProtocol_13_0"]),
+        .library(name: "XCBProtocol_13_3", targets: ["XCBProtocol_13_3"]),
         .library(name: "XCBBuildServiceProxy", targets: ["XCBBuildServiceProxy"]),
     ],
     dependencies: [
@@ -30,7 +31,10 @@ let package = Package(
         ),
         .testTarget(
             name: "MessagePackTests",
-            dependencies: ["MessagePack"]
+            dependencies: ["MessagePack"],
+            exclude: [
+                "BUILD.bazel"
+            ]
         ),
         .target(
             name: "XCBProtocol",
@@ -85,6 +89,16 @@ let package = Package(
         ),
         .target(
             name: "XCBProtocol_13_0",
+            dependencies: [
+                "MessagePack",
+                "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
+            ]
+        ),
+        .target(
+            name: "XCBProtocol_13_3",
             dependencies: [
                 "MessagePack",
                 "XCBProtocol",
