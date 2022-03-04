@@ -43,12 +43,12 @@ final class XCBBuildService {
         guard !process.isRunning else {
             if process.launchPath != processPath {
                 let launchPath = process.launchPath ?? ""
-                os_log("XCBBuildService start request for “\(processPath)” but it’s already running at “\(launchPath)”")
+                os_log(.error, "XCBBuildService start request for “\(processPath)” but it’s already running at “\(launchPath)”")
             }
             return
         }
         
-        os_log("Starting XCBBuildService at “\(processPath)”")
+        os_log(.info, "Starting XCBBuildService at “\(processPath)”")
         
         process.launchPath = processPath
         process.launch()
@@ -103,15 +103,15 @@ final class XCBBuildServiceBootstrap<RequestPayload, ResponsePayload> where
             }
             
             if let output = String(data: data, encoding: .utf8) {
-                os_log("XCBBuildService stderr: \(output)")
+                os_log(.info, "XCBBuildService stderr: \(output)")
             }
         }
         
         process.terminationHandler = { process in
-            os_log("XCBBuildService exited with status code: \(process.terminationStatus)")
+            os_log(.info, "XCBBuildService exited with status code: \(process.terminationStatus)")
         }
         
-        os_log("Prepping XCBBuildService")
+        os_log(.info, "Prepping XCBBuildService")
         
         let channelFuture = bootstrap.withPipes(
             inputDescriptor: stdout.fileHandleForReading.fileDescriptor,
@@ -126,7 +126,7 @@ final class XCBBuildServiceBootstrap<RequestPayload, ResponsePayload> where
             
         channelFuture
             .whenSuccess { _ in
-                os_log("XCBBuildService prepped")
+                os_log(.info, "XCBBuildService prepped")
             }
         
         return channelFuture.map { XCBBuildService(process: process, channel: $0) }

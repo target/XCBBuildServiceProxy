@@ -39,7 +39,7 @@ extension RPCRequest {
             payload = try packet.body.parseObject(indexPath: IndexPath())
         } catch {
             let errorStr = "\(error)"
-            os_log("Failed parsing RequestPayload received from Xcode: \(errorStr)\nValues: \(packet.body)")
+            os_log(.error, "Failed parsing RequestPayload received from Xcode: \(errorStr)\nValues: \(packet.body)")
             
             payload = .unknownRequest(values: packet.body)
         }

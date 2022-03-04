@@ -45,7 +45,7 @@ public final class HybridXCBBuildService<RequestHandler: HybridXCBBuildServiceRe
     public func start() throws -> Channel {
         let channel = try bootstrap.withPipes(inputDescriptor: STDIN_FILENO, outputDescriptor: STDOUT_FILENO).wait()
         
-        os_log("\(self.name) started and listening on STDIN")
+        os_log(.info, "\(self.name) started and listening on STDIN")
         
         return channel
     }
@@ -54,9 +54,9 @@ public final class HybridXCBBuildService<RequestHandler: HybridXCBBuildServiceRe
         do {
             try group.syncShutdownGracefully()
         } catch {
-            os_log("Error shutting down: \(error.localizedDescription)")
+            os_log(.error, "Error shutting down: \(error.localizedDescription)")
             exit(0)
         }
-        os_log("\(self.name) stopped")
+        os_log(.info, "\(self.name) stopped")
     }
 }

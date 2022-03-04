@@ -55,7 +55,7 @@ extension RPCResponse {
             payload = try packet.body.parseObject(indexPath: IndexPath())
         } catch {
             let errorStr = "\(error)"
-            os_log("Failed parsing ResponsePayload received from XCBBuildService: \(errorStr)\nValues: \(packet.body)")
+            os_log(.error, "Failed parsing ResponsePayload received from XCBBuildService: \(errorStr)\nValues: \(packet.body)")
             
             payload = .unknownResponse(values: packet.body)
         }
