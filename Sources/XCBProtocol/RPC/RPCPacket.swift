@@ -40,7 +40,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
     
     public func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
         if let packet = try findNextPacket(buffer: &buffer) {
-            os_log("[\(self.label)] Decoded RPCPacket: \(packet)")
+            os_log(.debug, "[\(self.label)] Decoded RPCPacket: \(packet)")
             context.fireChannelRead(wrapInboundOut(packet))
             return .continue
         } else {
@@ -59,7 +59,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
         // Reset header state since we have read the full packet now
         decodedHeader = nil
         
-        os_log("[\(self.label)] Decoded RPCPacket payload: \(payload)")
+        os_log(.debug, "[\(self.label)] Decoded RPCPacket payload: \(payload)")
         
         let body = try MessagePackValue.unpackAll(Data(payload))
         
@@ -88,7 +88,7 @@ public class RPCPacketCodec: ByteToMessageDecoder, MessageToByteEncoder {
     }
     
     public func encode(data packet: RPCPacket, out: inout ByteBuffer) throws {
-        os_log("[\(self.label)] Encoding RPCPacket: \(packet)")
+        os_log(.debug, "[\(self.label)] Encoding RPCPacket: \(packet)")
         
         let body = packet.body.reduce(into: Data()) { body, element in body.append(element.pack()) }
         

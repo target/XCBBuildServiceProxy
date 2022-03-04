@@ -42,7 +42,7 @@ public final class RPCResponseDecoder<Payload: ResponsePayload>: ChannelInboundH
         let packet = unwrapInboundIn(data)
         let response = RPCResponse<Payload>(packet)
         
-        os_log("RPCResponse decoded: \(response)")
+        os_log(.debug, "RPCResponse decoded: \(response)")
         
         context.fireChannelRead(wrapInboundOut(response))
     }

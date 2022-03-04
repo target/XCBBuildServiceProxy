@@ -97,7 +97,7 @@ final class XCBBuildServiceBootstrap<RequestPayload, ResponsePayload> where
         stderr.fileHandleForReading.readabilityHandler = { handle in
             let data = handle.availableData
             guard !data.isEmpty else {
-                os_log("Received XCBBuildService standard error EOF")
+                os_log(.debug, "Received XCBBuildService standard error EOF")
                 stderr.fileHandleForReading.readabilityHandler = nil
                 return
             }

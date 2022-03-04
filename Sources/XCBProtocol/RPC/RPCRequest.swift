@@ -26,7 +26,7 @@ public final class RPCRequestDecoder<Payload: RequestPayload>: ChannelInboundHan
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let request = RPCRequest<Payload>(unwrapInboundIn(data))
         
-        os_log("RPCRequest decoded: \(request)")
+        os_log(.debug, "RPCRequest decoded: \(request)")
         
         context.fireChannelRead(wrapInboundOut(request))
     }
