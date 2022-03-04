@@ -1,10 +1,10 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
-    name: "BazelXCBBuildServiceProxy",
-    platforms: [.macOS(.v10_14)],
+    name: "XCBBuildServiceProxy",
+    platforms: [.macOS(.v11)],
     products: [
         .library(name: "XCBProtocol", targets: ["XCBProtocol"]),
         .library(name: "XCBProtocol_11_3", targets: ["XCBProtocol_11_3"]),
@@ -12,12 +12,13 @@ let package = Package(
         .library(name: "XCBProtocol_12_0", targets: ["XCBProtocol_12_0"]),
         .library(name: "XCBProtocol_12_5", targets: ["XCBProtocol_12_5"]),
         .library(name: "XCBProtocol_13_0", targets: ["XCBProtocol_13_0"]),
+        .library(name: "XCBProtocol_13_3", targets: ["XCBProtocol_13_3"]),
         .library(name: "XCBBuildServiceProxy", targets: ["XCBBuildServiceProxy"]),
     ],
     dependencies: [
         // Make sure to update the versions used in the `repositories.bzl` file if you change them here
         .package(url: "https://github.com/apple/swift-log", .exact("1.4.2")),
-        .package(url: "https://github.com/apple/swift-nio", .exact("2.30.0")),
+        .package(url: "https://github.com/apple/swift-nio", .exact("2.38.0")),
     ],
     targets: [
         .target(
@@ -30,14 +31,17 @@ let package = Package(
         ),
         .testTarget(
             name: "MessagePackTests",
-            dependencies: ["MessagePack"]
+            dependencies: ["MessagePack"],
+            exclude: [
+                "BUILD.bazel"
+            ]
         ),
         .target(
             name: "XCBProtocol",
             dependencies: [
-                "Logging",
+                .product(name: "Logging", package: "swift-log"),
                 "MessagePack",
-                "NIO",
+                .product(name: "NIO", package: "swift-nio"),
             ],
             exclude: [
                 "BUILD.bazel"
@@ -94,10 +98,20 @@ let package = Package(
             ]
         ),
         .target(
+            name: "XCBProtocol_13_3",
+            dependencies: [
+                "MessagePack",
+                "XCBProtocol",
+            ],
+            exclude: [
+                "BUILD.bazel"
+            ]
+        ),
+        .target(
             name: "XCBBuildServiceProxy",
             dependencies: [
-                "Logging",
-                "NIO",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "NIO", package: "swift-nio"),
                 "XCBProtocol",
             ],
             exclude: [

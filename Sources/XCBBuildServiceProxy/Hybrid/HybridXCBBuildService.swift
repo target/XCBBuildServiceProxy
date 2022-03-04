@@ -1,5 +1,6 @@
 import Foundation
 import NIO
+import os
 import XCBProtocol
 
 public final class HybridXCBBuildService<RequestHandler: HybridXCBBuildServiceRequestHandler> {
@@ -44,7 +45,7 @@ public final class HybridXCBBuildService<RequestHandler: HybridXCBBuildServiceRe
     public func start() throws -> Channel {
         let channel = try bootstrap.withPipes(inputDescriptor: STDIN_FILENO, outputDescriptor: STDOUT_FILENO).wait()
         
-        logger.info("\(name) started and listening on STDIN")
+        os_log(.info, "\(self.name) started and listening on STDIN")
         
         return channel
     }
@@ -53,9 +54,9 @@ public final class HybridXCBBuildService<RequestHandler: HybridXCBBuildServiceRe
         do {
             try group.syncShutdownGracefully()
         } catch {
-            logger.error("Error shutting down: \(error)")
+            os_log(.error, "Error shutting down: \(error.localizedDescription)")
             exit(0)
         }
-        logger.info("\(name) stopped")
+        os_log(.info, "\(self.name) stopped")
     }
 }

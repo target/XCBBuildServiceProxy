@@ -1,5 +1,6 @@
 import Logging
 import NIO
+import os
 import XCBProtocol
 
 // swiftformat:disable braces
@@ -81,12 +82,11 @@ public final class HybridXCBBuildServiceRequestHandlerContext<RequestPayload, Re
     }
     
     public func sendErrorResponse(
-        _ messageClosure: @autoclosure () -> Logger.Message,
+        _ messageClosure: @autoclosure () -> String,
         request: Request,
         file: String = #file, function: String = #function, line: UInt = #line
     ) {
         let message = messageClosure()
-        logger.error(message, file: file, function: function, line: line)
         sendResponseMessage(.errorResponse(message.description), channel: request.channel)
     }
 }
