@@ -2,8 +2,7 @@
 
 Future updates will be done at: 
 
-https://github.com/MobileNativeFoundation/XCBBuildServiceProxyKit/
-
+https://github.com/MobileNativeFoundation/XCBBuildServiceProxyKit
 
 ---
 
