@@ -1,4 +1,13 @@
-# XCBBuildServiceProxy
+# THIS REPO HAS BEEN MOVED
+
+Future updates will be done at: 
+
+https://github.com/MobileNativeFoundation/XCBBuildServiceProxyKit/
+
+
+---
+
+## XCBBuildServiceProxy
 
 XCBBuildServiceProxy is a framework that enables you to write a proxy for Xcode's XCBBuildService, which enables you to extend or replace Xcode's build system.
 
