@@ -7,6 +7,10 @@ let package = Package(
     platforms: [.macOS(.v10_14)],
     products: [
         .executable(name: "BazelXCBBuildService", targets: ["BazelXCBBuildService"]),
+        .library(
+            name: "src_main_java_com_google_devtools_build_lib_buildeventstream_proto_build_event_stream_proto",
+            targets: ["src_main_java_com_google_devtools_build_lib_buildeventstream_proto_build_event_stream_proto"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
